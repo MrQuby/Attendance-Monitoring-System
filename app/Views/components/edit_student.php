@@ -7,6 +7,7 @@
 
     // Get form data
     $studentId = $_POST['student_id'];
+    $studentRfid = $_POST['student_rfid'];
     $firstName = $_POST['student_firstname'];
     $lastName = $_POST['student_lastname'];
     $email = $_POST['student_email'];
@@ -40,7 +41,7 @@
     }
 
     // Update the student in the database with all new fields, including the profile picture path
-    $studentModel->updateStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
+    $studentModel->updateStudent($studentId, $studentRfid, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
 
     // Set success message in session
     $_SESSION['edit_student_success'] = true;

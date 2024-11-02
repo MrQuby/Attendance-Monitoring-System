@@ -221,7 +221,6 @@
                                             <i class='bx bxs-edit'></i>
                                         </button>
 
-
                                         <!-- Delete button with only the icon displayed -->
                                         <form action="/app/Views/components/delete_student.php" method="post" style="display:inline-block;">
                                             <input type="hidden" name="student_id" value="<?php echo $student['student_id']; ?>">
@@ -246,7 +245,44 @@
             <?php if (isset($_GET['section']) && $_GET['section'] == 'attendance'): ?>
                 <section class="attendance">
                     <h2>Attendance List</h2>
-                    <!-- Attendance table similar to the student list -->
+                    <table class="table table-striped table-grey">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">FullName</th>
+                            <th scope="col">Yr&level</th>
+                            <th scope="col">Course</th>
+                            <th scope="col">Check-In</th>
+                            <th scope="col">Check-Out</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>Jacob</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>Larry</td>
+                            <td>the Bird</td>
+                            <td>@twitter</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </section>
             <?php endif; ?>
 
@@ -291,7 +327,7 @@
             <div class="modal-dialog modal-sm">
                 <div class="modal-content bg-success text-white">
                     <div class="modal-body text-center">
-                        <p id="alertMessage" class="mb-0">Student Edited Successfully</p>
+                        <p id="alertMessage" class="mb-0">Student Updated Successfully</p>
                     </div>
                 </div>
             </div>
@@ -306,9 +342,6 @@
 
     <!-- Include custom delete modals JavaScript -->
     <script src="../../assets/js/delete_modals.js"></script>
-
-    <script src="../../assets/js/view_student_modal.js"></script>
-
 
     <script>
         // Auto-show success modals if the respective session flag is set
@@ -336,6 +369,5 @@
         });
     </script>
     
-
 </body>
 </html>

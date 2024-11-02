@@ -8,6 +8,7 @@
             </div>
             <div class="modal-body">
                 <form id="edit-student-form" action="/app/Views/components/edit_student.php" method="POST" enctype="multipart/form-data">
+                    
                     <!-- Profile Picture Upload with Preview -->
                     <div class="mb-4 text-center">
                         <img id="edit-profile-picture-display" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
@@ -20,9 +21,14 @@
                     <!-- Two-Column Layout for Fields -->
                     <div class="row">
                         <div class="col-md-6">
+                            <!-- Student ID and RFID Fields -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
                                 <input type="text" class="form-control" placeholder="Student ID" id="student-id" name="student_id" readonly>
+                            </div>
+                            <div class="mb-3 input-group">
+                                <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                                <input type="text" class="form-control" placeholder="Student RFID" id="student-rfid" name="student_rfid" required>
                             </div>
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -36,9 +42,23 @@
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                 <input type="email" class="form-control" placeholder="Email" id="student-email" name="student_email" required>
                             </div>
+                            <!-- Course Field below Email -->
+                            <div class="mb-3 input-group">
+                                <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                <select id="course" name="course_id" class="form-select" required>
+                                    <option value="" disabled>Select a Course</option>
+                                    <?php
+                                    $courses = $studentModel->getAllCourses();
+                                    foreach ($courses as $course) {
+                                        echo "<option value='{$course['course_id']}'>{$course['course_name']}</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
+                            <!-- Second Column Fields -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                 <input type="date" class="form-control" id="student-birthdate" name="student_birthdate" required>
@@ -49,7 +69,7 @@
                             </div>
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
-                                <select class="form-select" id="student-gender" name="student_gender">
+                                <select class="form-select" id="student-gender" name="student_gender" required>
                                     <option value="" disabled>Select Gender</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
@@ -67,37 +87,16 @@
                                     <option value="4th year">4th Year</option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Guardian Details Fields -->
-                    <div class="row">
-                        <div class="col-md-6">
+                            <!-- Guardian Details Fields -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
                                 <input type="text" class="form-control" placeholder="Guardian Name" id="guardian-name" name="guardian_name">
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
                                 <input type="tel" class="form-control" placeholder="Guardian Contact" id="guardian-contact" name="guardian_contact">
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Full-width Course Field -->
-                    <div class="mb-4 input-group">
-                        <span class="input-group-text"><i class="fas fa-book"></i></span>
-                        <select id="course" name="course_id" class="form-select" required>
-                            <option value="" disabled>Select a Course</option>
-                            <?php
-                            $courses = $studentModel->getAllCourses();
-                            foreach ($courses as $course) {
-                                echo "<option value='{$course['course_id']}'>{$course['course_name']}</option>";
-                            }
-                            ?>
-                        </select>
                     </div>
 
                     <!-- Full-width Address Field -->

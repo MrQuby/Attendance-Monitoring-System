@@ -7,6 +7,7 @@
 
     // Get form data
     $studentId = $_POST['student_id'];
+    $studentRfid = $_POST['student_rfid'];
     $firstName = $_POST['student_firstname'];
     $lastName = $_POST['student_lastname'];
     $email = $_POST['student_email'];
@@ -34,7 +35,7 @@
     }
 
     // Add the new student with the profile picture path
-    $studentModel->addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
+    $studentModel->addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath, $studentRfid);
 
     // Set a session variable for success
     $_SESSION['add_student_success'] = true;
