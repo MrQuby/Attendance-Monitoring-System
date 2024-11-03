@@ -164,5 +164,13 @@ class Student {
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getStudentByRfid($rfid) {
+        $query = "SELECT * FROM students WHERE student_rfid = :rfid";
+        $statement = $this->pdo->prepare($query);
+        $statement->bindParam(':rfid', $rfid);
+        $statement->execute();
+        return $statement->fetch(PDO::FETCH_ASSOC); // Returns the student data if found
+    }
 }
 ?>
