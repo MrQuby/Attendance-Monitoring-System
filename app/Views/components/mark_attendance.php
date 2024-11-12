@@ -1,83 +1,73 @@
 <?php
-require_once(__DIR__ . '/../../config/database.php');
-require_once(__DIR__ . '/../../Models/Student.php');
-require_once(__DIR__ . '/../../Models/Attendance.php');
+    require_once(__DIR__ . '/../../config/database.php');
+    require_once(__DIR__ . '/../../Models/Student.php');
+    require_once(__DIR__ . '/../../Models/Attendance.php');
 
-header("Content-Type: application/json");
+    header("Content-Type: application/json");
+    date_default_timezone_set('Asia/Singapore'); // Ensure timezone is set
 
-// Enable error reporting for debugging purposes
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+    $data = json_decode(file_get_contents("php://input"), true);
+    $rfid = $data['rfid'] ?? null;
+    $response = ["success" => false, "message" => "RFID not provided"];
 
-$data = json_decode(file_get_contents("php://input"), true);
-$rfid = $data['rfid'] ?? null;
-$response = ["success" => false, "message" => "RFID not provided"];
+    try {
+        if ($rfid) {
+            $studentModel = new Student($pdo);
+            $attendanceModel = new Attendance($pdo);
 
-try {
-    if ($rfid) {
-        // Initialize database connection and models
-        $pdo = $pdo ?? (new PDO("mysql:host=localhost;dbname=attendance_system", "root", ""));
-        $studentModel = new Student($pdo);
-        $attendanceModel = new Attendance($pdo);
+            $student = $studentModel->getStudentByRfid($rfid);
 
-        // Find student by RFID
-        $student = $studentModel->getStudentByRfid($rfid);
+            if ($student) {
+                $studentId = $student['student_id'];
+                $date = date("Y-m-d");
+                $currentTime = date("H:i:s");
 
-        if ($student) {
-            $studentId = $student['student_id'];
-            $date = date("Y-m-d");
-            $currentTime = date("H:i:s");
+                $attendance = $attendanceModel->getTodayRecord($studentId, $date);
 
-            // Check if there's an existing attendance record for today without a time_out for this specific student
-            $attendance = $attendanceModel->getTodayRecord($studentId, $date);
+                if ($attendance && empty($attendance['time_out'])) {
+                    $attendanceModel->recordCheckOut($attendance['attendance_id'], $currentTime);
+                    $status = "OUT";
+                    $time = $currentTime;
+                    $attendanceDate = $attendance["date"];
+                } else {
+                    $attendanceModel->recordCheckIn($studentId, $date, $currentTime);
+                    $status = "IN";
+                    $time = $currentTime;
+                    $attendanceDate = $date;
+                }
 
-            if ($attendance && empty($attendance['time_out'])) {
-                // Existing check-in found, mark as check-out
-                $attendanceModel->recordCheckOut($attendance['attendance_id'], $currentTime);
-                $status = "OUT";
-                $time = $currentTime;
+                $response = [
+                    "success" => true,
+                    "status" => $status,
+                    "time" => date("h:i A", strtotime($time)),
+                    "date" => date("F d, Y", strtotime($attendanceDate)), // Format date
+                    "student" => [
+                        "student_id" => $student["student_id"],
+                        "full_name" => $student["student_firstname"] . " " . $student["student_lastname"],
+                        "department" => $student["course_id"],
+                        "profile_picture" => "../../uploads/" . (basename($student["profile_picture"]) ?? "default-image.jpg")
+                    ],
+                    "recent_students" => array_map(function($attendance) use ($studentModel) {
+                        $recentStudent = $studentModel->getStudentById($attendance["student_id"]);
+                        return [
+                            "student_id" => $attendance["student_id"],
+                            "full_name" => $recentStudent["student_firstname"] . " " . $recentStudent["student_lastname"],
+                            "date" => date("F d, Y", strtotime($attendance["date"])),
+                            "time_in" => date("h:i A", strtotime($attendance["time_in"])),
+                            "time_out" => $attendance["time_out"] ? date("h:i A", strtotime($attendance["time_out"])) : "N/A",
+                            "status" => $attendance["time_out"] ? "OUT" : "IN",
+                            "profile_picture" => "../../uploads/" . (basename($recentStudent["profile_picture"]) ?? "default-image.jpg"),
+                            "department" => $recentStudent["course_id"] ?? "N/A"
+                        ];
+                    }, $attendanceModel->getRecentAttendance(3))
+                ];
             } else {
-                // No record for today or already checked out, mark as new check-in
-                $attendanceModel->recordCheckIn($studentId, $date, $currentTime);
-                $status = "IN";
-                $time = $currentTime;
+                $response["message"] = "RFID not recognized. Student not found.";
             }
-
-            // Prepare response with student details and attendance information
-            $response = [
-                "success" => true,
-                "status" => $status,
-                "time" => $time,
-                "student" => [
-                    "student_id" => $student["student_id"],
-                    "full_name" => $student["student_firstname"] . " " . $student["student_lastname"],
-                    "department" => $student["course_id"], // Adjust as needed for department/course name
-                    "profile_picture" => "../../uploads/" . (basename($student["profile_picture"]) ?? "default-image.jpg")
-                ],
-                // Fetch recent students with all necessary details
-                "recent_students" => array_map(function($attendance) use ($studentModel) {
-                    $recentStudent = $studentModel->getStudentById($attendance["student_id"]);
-                    return [
-                        "student_id" => $attendance["student_id"],
-                        "full_name" => $recentStudent["student_firstname"] . " " . $recentStudent["student_lastname"],
-                        "date" => $attendance["date"],
-                        "time_in" => $attendance["time_in"],
-                        "time_out" => $attendance["time_out"],
-                        "status" => $attendance["time_out"] ? "OUT" : "IN",
-                        "profile_picture" => "../../uploads/" . (basename($recentStudent["profile_picture"]) ?? "default-image.jpg"),
-                        "department" => $recentStudent["course_id"] ?? "N/A"
-                    ];
-                }, $attendanceModel->getRecentAttendance(3)) // Last 3 recent records for display
-            ];
-        } else {
-            $response["message"] = "RFID not recognized. Student not found.";
         }
+    } catch (Exception $e) {
+        $response = ["success" => false, "message" => "Error: " . $e->getMessage()];
     }
-} catch (Exception $e) {
-    // Handle exceptions and ensure response is valid JSON
-    $response = ["success" => false, "message" => "Error: " . $e->getMessage()];
-}
 
-// Return the response as JSON
-echo json_encode($response);
+    echo json_encode($response);
+?>

@@ -7,19 +7,22 @@ body {
     height: 100vh;
     margin: 0;
 }
+
 .container-login {
     background-color: white;
     border-radius: 20px;
-    box-shadow: 0 20px 35px rgba(0,0,1,0.9);
+    box-shadow: 0 20px 35px rgba(0, 0, 1, 0.9);
     display: flex;
     width: 800px;
     overflow: hidden;
 }
+
 .left-side {
     flex: 1;
     padding: 40px;
     background-color: white;
 }
+
 .right-side {
     flex: 1;
     background-color: #6f42c1;
@@ -34,10 +37,11 @@ body {
 }
 
 .left-side h2 {
-    text-align: center; /* Centers only the "LOGIN ACCOUNT" heading */
+    text-align: center;
     width: 100%;
     margin-bottom: 3rem;
 }
+
 form label {
     font-size: 18px;
     display: block;
@@ -51,12 +55,14 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
 .forgot-password {
     text-align: right;
     margin-bottom: 20px;
     font-size: 14px;
     color: #666;
 }
+
 .sign-in-button {
     width: 100%;
     padding: 10px;
@@ -66,13 +72,16 @@ input[type="password"] {
     border-radius: 5px;
     cursor: pointer;
 }
+
 .welcome-message {
     text-align: center;
 }
+
 .welcome-message h2 {
     font-size: 24px;
     margin-bottom: 20px;
 }
+
 .welcome-message p {
     font-size: 16px;
     line-height: 1.5;

@@ -15,48 +15,75 @@ body {
     height: 100vh;
 }
 
-/* Sidebar Title/Icon */
+/* Sidebar Container */
 .sidebar {
     width: 250px;
-    background-color: #333;
-    color: white;
-    padding: 20px;
+    background-color: #1f2937;
+    color: #fff;
+    height: 95vh;
+    padding: 20px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-   
-}
-ul{
-    width: 100%;
-}
-.sidebar i{
-    font-size: 5.5rem;
-
+    border-radius: 10px;
+    margin: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Sidebar Icon */
+.sidebar .bx-user-circle {
+    font-size: 100px;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+/* Sidebar Title */
 .sidebar h2 {
+    color: #fff;
+    font-size: 25px;
     margin-bottom: 20px;
 }
 
-.sidebar ul {
+/* Sidebar Menu */
+.sidebar-menu {
     list-style: none;
+    padding: 0;
+    width: 100%;
 }
 
-.sidebar ul li {
-    margin-bottom: 10px;
-}
-
-.sidebar ul li a {
-    color: white;
+/* Sidebar Links */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    color: #cbd5e1;
     text-decoration: none;
-    display: block;
+    font-size: 18px;
+    transition: background-color 0.3s, color 0.3s;
+    width: 90%;
+    border-radius: 8px;
+    margin: 5px auto;
 }
 
-.sidebar ul li a:hover {
-    background-color: #575757;
-    padding: 5px;
+/* Sidebar Link Icon */
+.sidebar-link i {
+    font-size: 19px;
+    margin-right: 12px;
+    color: inherit;
 }
 
+/* Hover Effect */
+.sidebar-link:hover {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+/* Active Link */
+.sidebar-link.active {
+    background-color: #2563eb;
+    color: #fff;
+}
 
 /* Main Content Styling */
 .main-content {
@@ -78,7 +105,8 @@ ul{
 /* Modal for Alert */
 .modal-content.bg-success {
     border-radius: 5px;
-    border: 2px solid #c3e6cb; /* Light green border */
+    border: 2px solid #c3e6cb;
+    /* Light green border */
     font-weight: bold;
 }
 
@@ -128,6 +156,24 @@ ul{
     color: #34495e;
 }
 
+.scrollable-table-container {
+    max-height: 740px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #34495e;
+    z-index: 1;
+}
+
 /* Table Styling */
 table {
     width: 100%;
@@ -145,8 +191,8 @@ table thead {
     color: #fff;
 }
 
-table th, table td {
-    /* padding: 12px 15px; */
+table th,
+table td {
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -154,10 +200,6 @@ table th, table td {
     border-bottom: 1px solid #ddd;
     vertical-align: middle;
 }
-
-/* table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-} */
 
 table tbody tr:hover {
     background-color: #f2f2f2;
@@ -199,17 +241,21 @@ table tbody tr:hover {
 }
 
 /* Section Spacing */
-.dashboard, .student-list, .attendance {
+.dashboard,
+.student-list,
+.attendance {
     margin-top: 20px;
 }
 
 .dashboard[style*="block"],
-.student-list[style*="block"], .attendance[style*="block"] {
+.student-list[style*="block"],
+.attendance[style*="block"] {
     opacity: 1;
 }
 
 .dashboard[style*="none"],
-.student-list[style*="none"], .attendance[style*="none"] {
+.student-list[style*="none"],
+.attendance[style*="none"] {
     opacity: 0;
 }
 
@@ -237,14 +283,15 @@ table tbody tr:hover {
 .small-box {
     border-radius: 5px;
     position: relative;
-    padding: 20px;
+    padding: 30px;
     color: #fff;
     margin-bottom: 20px;
     transition: transform 0.3s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 120px; /* Set a fixed height */
+    height: 150px;
+    /* Set a fixed height */
 }
 
 .small-box:hover {
@@ -290,7 +337,7 @@ table tbody tr:hover {
 
 /* Custom Colors for Small Boxes */
 .bg-aqua {
-    background-color: #00c0ef !important;
+    background-color: #2563eb !important;
 }
 
 .bg-green {
@@ -307,23 +354,28 @@ table tbody tr:hover {
 
 /* Adjust Darker Bottom Bar for "More info" section */
 .bg-aqua .small-box-footer {
-    background: #0097bc !important; /* Darker shade for aqua */
+    background: #0097bc !important;
+    /* Darker shade for aqua */
 }
 
 .bg-green .small-box-footer {
-    background: #008d4c !important; /* Darker shade for green */
+    background: #008d4c !important;
+    /* Darker shade for green */
 }
 
 .bg-red .small-box-footer {
-    background: #d73925 !important; /* Darker shade for red */
+    background: #d73925 !important;
+    /* Darker shade for red */
 }
 
 .bg-yellow .small-box-footer {
-    background: #da8c10 !important; /* Darker shade for yellow */
+    background: #da8c10 !important;
+    /* Darker shade for yellow */
 }
 
 /* Light white color for Font Awesome icons */
 .small-box .icon i,
 #sidebar ul li a i {
-    color: rgba(255, 255, 255, 0.8) !important; /* Light white color */
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding-top: 20px !important;
 }

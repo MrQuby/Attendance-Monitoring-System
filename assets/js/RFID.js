@@ -1,36 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
     const recentStudentsContainer = document.getElementById("recent-students");
+    const attendanceTableBody = document.getElementById("attendance-table-body");
 
     let recentStudents = [];
     let currentStudent = null;
     let rfidBuffer = ''; // Temporary storage for RFID data
 
-    function loadAttendanceData() {
-        fetch("../Views/components/get_attendance_data.php")
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateTable(data.data);
-                }
+    function loadAttendanceTable() {
+        fetch("../Views/components/get_attendance_table.php")
+            .then(response => response.text())
+            .then(html => {
+                attendanceTableBody.innerHTML = html; // Update the table body
             })
             .catch(error => console.error("Error fetching attendance data:", error));
-    }
-
-    function updateTable(records) {
-        const attendanceTableBody = document.getElementById("attendance-table-body");
-        attendanceTableBody.innerHTML = "";
-
-        records.forEach(record => {
-            const newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td>${record.student_id}</td>
-                <td>${record.full_name}</td>
-                <td>${record.time_in}</td> <!-- Use time_in exactly as received from PHP -->
-                <td>${record.time_out || "N/A"}</td> <!-- Use time_out exactly as received from PHP -->
-                <td>${record.date}</td> <!-- Use date exactly as received from PHP -->
-            `;
-            attendanceTableBody.appendChild(newRow);
-        });
     }
 
     function updateRecentStudents() {
@@ -62,9 +44,8 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rfid: rfid })
         })
-            .then(response => response.text())
-            .then(text => {
-                const data = JSON.parse(text);
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     if (currentStudent && currentStudent.student_id !== data.student.student_id) {
                         if (recentStudents.length === 3) {
@@ -93,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     statusLabel.className = data.status === "IN" ? "status-in" : "status-out";
 
                     updateRecentStudents();
-                    loadAttendanceData();
+                    loadAttendanceTable();
                 } else {
                     alert(data.message || "Failed to log attendance.");
                 }
@@ -111,5 +92,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    loadAttendanceData();
+    loadAttendanceTable(); // Initial load of the attendance table
 });

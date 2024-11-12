@@ -123,7 +123,7 @@
 
         reader.onload = function() {
             if (reader.readyState === 2) {
-                imageField.src = reader.result;  // Display the selected image
+                imageField.src = reader.result;
             }
         };
 
