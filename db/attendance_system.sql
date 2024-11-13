@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 12, 2024 at 05:08 AM
+-- Generation Time: Nov 13, 2024 at 07:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -127,10 +127,10 @@ INSERT INTO `students` (`student_id`, `student_rfid`, `student_firstname`, `stud
 --
 
 CREATE TABLE `teachers` (
-  `id` int(11) UNSIGNED NOT NULL,
   `teacher_id` varchar(50) NOT NULL,
-  `teacher_first_name` varchar(50) NOT NULL,
-  `teacher_last_name` varchar(50) NOT NULL,
+  `teacher_firstname` varchar(100) NOT NULL,
+  `teacher_lastname` varchar(100) NOT NULL,
+  `teacher_email` varchar(150) NOT NULL,
   `teacher_password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -139,11 +139,8 @@ CREATE TABLE `teachers` (
 -- Dumping data for table `teachers`
 --
 
-INSERT INTO `teachers` (`id`, `teacher_id`, `teacher_first_name`, `teacher_last_name`, `teacher_password`, `created_at`) VALUES
-(2, 'SCC-11111', 'Johny', 'Sins', '$2y$10$ubx/RKfeL58aIgEVSJUQqOVBmAzgSDql3rk2Ak0F5DLPWyvrk6T3i', '2024-10-13 08:08:38'),
-(3, 'SCC-11112', 'Joshua', 'Espanillo', '$2y$10$eYKwR6q9uCcblrpBxOWDwuvYQAdLz/JB1dXm9oe77Nqblz9XNIHAG', '2024-10-13 08:13:41'),
-(4, 'SCC-11113', 'alvin', 'lagoras', '$2y$10$xT0XC1EOVjPDAY.8.OkRaeRuFCykKO0e5ZuPDafwuo3CGONkfNWoe', '2024-10-13 10:12:24'),
-(5, 'SCC-11114', 'quby', 'lagoras', '$2y$10$fg7Dc971C9vnCMF9QMEzceLinan.tJ.KDVOhxOuDYjTxP7uO7E4ES', '2024-10-13 12:01:53');
+INSERT INTO `teachers` (`teacher_id`, `teacher_firstname`, `teacher_lastname`, `teacher_email`, `teacher_password`, `created_at`) VALUES
+('SCC-11112', 'alvin', 'lagoras', 'test@gmail.com', '$2y$10$brLMmZKNyaZ2ot.P8I1J1OYgWq5Lt7g97uIbaEc2rXWvrl9dKmc9a', '2024-11-13 17:50:57');
 
 --
 -- Indexes for dumped tables
@@ -174,8 +171,8 @@ ALTER TABLE `students`
 -- Indexes for table `teachers`
 --
 ALTER TABLE `teachers`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `teacher_id` (`teacher_id`);
+  ADD PRIMARY KEY (`teacher_id`),
+  ADD UNIQUE KEY `teacher_email` (`teacher_email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -186,12 +183,6 @@ ALTER TABLE `teachers`
 --
 ALTER TABLE `attendance`
   MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=426;
-
---
--- AUTO_INCREMENT for table `teachers`
---
-ALTER TABLE `teachers`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

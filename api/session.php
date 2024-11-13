@@ -14,6 +14,5 @@
         exit;
     }
 
-    // User is logged in, return teacher info
     echo json_encode(['status' => 'success', 'teacher' => SessionManager::getTeacherInfo()]);
 ?>
