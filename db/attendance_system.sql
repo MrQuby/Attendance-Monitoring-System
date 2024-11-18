@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 13, 2024 at 07:03 PM
+-- Generation Time: Nov 18, 2024 at 03:57 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,28 @@ SET time_zone = "+00:00";
 --
 -- Database: `attendance_system`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `admin_id` varchar(10) NOT NULL,
+  `admin_firstname` varchar(50) NOT NULL,
+  `admin_lastname` varchar(50) NOT NULL,
+  `admin_email` varchar(100) NOT NULL,
+  `admin_password` varchar(255) NOT NULL,
+  `registered_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`admin_id`, `admin_firstname`, `admin_lastname`, `admin_email`, `admin_password`, `registered_at`) VALUES
+('ACC-10001', 'ADMIN', '', 'admin@edu.com', '$2y$10$WU4sqEJdQH7lk9Qz72fEBuAEwoXecaEBlhd/OSY4lFVtqe9JwpvzS', '2024-11-17 06:33:11');
 
 -- --------------------------------------------------------
 
@@ -42,20 +64,20 @@ CREATE TABLE `attendance` (
 --
 
 INSERT INTO `attendance` (`attendance_id`, `student_id`, `date`, `time_in`, `time_out`, `status`, `created_at`) VALUES
-(408, 'SCC-10004', '2024-11-11', '11:03:57', '11:03:58', 'OUT', '2024-11-11 03:03:57'),
-(409, 'SCC-10004', '2024-11-11', '11:03:59', NULL, 'IN', '2024-11-11 03:03:59'),
+(408, 'SCC-10004', '2024-11-18', '11:03:57', '11:03:58', 'OUT', '2024-11-11 03:03:57'),
+(409, 'SCC-10004', '2024-11-18', '11:03:59', NULL, 'IN', '2024-11-11 03:03:59'),
 (410, 'SCC-10004', '2024-11-12', '11:04:07', '11:04:08', 'OUT', '2024-11-12 03:04:07'),
 (411, 'SCC-10004', '2024-11-12', '11:04:09', '11:04:10', 'OUT', '2024-11-12 03:04:09'),
 (412, 'SCC-10004', '2024-11-12', '11:05:53', '11:05:54', 'OUT', '2024-11-12 03:05:53'),
 (413, 'SCC-10003', '2024-11-12', '11:06:01', '11:06:20', 'OUT', '2024-11-12 03:06:01'),
 (414, 'SCC-10003', '2024-11-12', '11:06:21', '11:11:50', 'OUT', '2024-11-12 03:06:21'),
 (415, 'SCC-10005', '2024-11-12', '11:06:23', '11:12:27', 'OUT', '2024-11-12 03:06:23'),
-(416, 'SCC-10001', '2024-11-12', '11:06:24', '11:11:46', 'OUT', '2024-11-12 03:06:24'),
+(416, 'SCC-10001', '2024-11-18', '11:06:24', '11:11:46', 'OUT', '2024-11-12 03:06:24'),
 (417, 'SCC-10001', '2024-11-12', '11:11:47', '11:11:48', 'OUT', '2024-11-12 03:11:47'),
 (418, 'SCC-10003', '2024-11-12', '11:11:51', '11:11:54', 'OUT', '2024-11-12 03:11:51'),
 (419, 'SCC-10001', '2024-11-12', '11:12:12', '11:12:14', 'OUT', '2024-11-12 03:12:12'),
 (420, 'SCC-10001', '2024-11-12', '11:12:15', '11:12:16', 'OUT', '2024-11-12 03:12:15'),
-(421, 'SCC-10003', '2024-11-12', '11:12:24', NULL, 'IN', '2024-11-12 03:12:24'),
+(421, 'SCC-10003', '2024-11-17', '11:12:24', NULL, 'IN', '2024-11-12 03:12:24'),
 (422, 'SCC-10001', '2024-11-12', '11:29:23', '11:29:24', 'OUT', '2024-11-12 03:29:23'),
 (423, 'SCC-10001', '2024-11-12', '11:29:25', '11:29:26', 'OUT', '2024-11-12 03:29:25'),
 (424, 'SCC-10001', '2024-11-12', '11:29:26', '11:29:28', 'OUT', '2024-11-12 03:29:26'),
@@ -115,7 +137,7 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`student_id`, `student_rfid`, `student_firstname`, `student_lastname`, `student_level`, `course_id`, `student_email`, `student_birthdate`, `student_phone`, `student_address`, `student_gender`, `guardian_name`, `guardian_contact`, `profile_picture`, `deleted_at`, `deleted`) VALUES
 ('SCC-10001', '0009500936', 'Alvin', 'Lagoras', '1st year', 'BSED', 'test1@gmail.com', '2024-10-03', '09054444433', 'Minglanilla,Cebu', 'Male', 'Mother', '09999433333', 'uploads/671fb535d5d7a-328101249_863345214723439_1040826811328765772_n.jpg', NULL, 0),
-('SCC-10002', '0009600522', 'Joshua', 'Espanillo', '1st year', 'BSHM', 'test2@gmail.com', '2024-10-10', '09054444433', 'Naga, cebu', 'Male', 'Mother', '09999433333', 'uploads/671fb57933fb5-pexels-marleneleppanen-1183266.jpg', NULL, 0),
+('SCC-10002', '0009600522', 'Joshua', 'Espanillo', '1st year', 'BSHM', 'test2@gmail.com', '2024-10-10', '09054444433', 'Naga, cebu', 'Male', 'Mother', '09999433333', 'uploads/671fb57933fb5-pexels-marleneleppanen-1183266.jpg', '2024-11-16 07:39:10', 1),
 ('SCC-10003', '0009698140', 'Jonard', 'Victorillo', '1st year', 'BSCRIM', 'jonard@gmail.com', '2024-11-01', '09054444433', 'Naga, Cebu', 'Male', 'Mother', '09999433333', 'uploads/jonard.jpg', NULL, 0),
 ('SCC-10004', '0009500522', 'Aljun', 'Delantae', '4th year', 'BSCRIM', 'aljun@gmail.com', '2024-11-01', '09054444433', 'Lipata, cebu', 'Male', 'Mother', '09999433333', 'uploads/67278b729ec13-aljun.jpg', NULL, 0),
 ('SCC-10005', '0009697931', 'Mike', 'Cortez', '2nd year', 'BSED', 'mike@gmail.com', '2024-10-04', '09054444433', 'Minglanilla', 'Male', 'Mother', '09999433333', 'uploads/67278bb61de3a-mike.jpg', NULL, 0);
@@ -140,11 +162,19 @@ CREATE TABLE `teachers` (
 --
 
 INSERT INTO `teachers` (`teacher_id`, `teacher_firstname`, `teacher_lastname`, `teacher_email`, `teacher_password`, `created_at`) VALUES
-('SCC-11112', 'alvin', 'lagoras', 'test@gmail.com', '$2y$10$brLMmZKNyaZ2ot.P8I1J1OYgWq5Lt7g97uIbaEc2rXWvrl9dKmc9a', '2024-11-13 17:50:57');
+('SCC-11112', 'Alvin', 'Lagoras', 'test@gmail.com', '$2y$10$WU4sqEJdQH7lk9Qz72fEBuAEwoXecaEBlhd/OSY4lFVtqe9JwpvzS', '2024-11-15 18:11:14'),
+('SCC-11113', 'Alvin', 'Lagoras', 'test1@gmail.com', '$2y$10$n/O7QrTv8tmtOrZzsG/Phe1LbIilNKuEQVA70P6zvs.vlvosZ0OMq', '2024-11-18 01:24:52');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`admin_id`),
+  ADD UNIQUE KEY `admin_email` (`admin_email`);
 
 --
 -- Indexes for table `attendance`

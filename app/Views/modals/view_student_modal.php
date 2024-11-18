@@ -9,7 +9,7 @@
                 <form>
                     <!-- Profile Picture Display -->
                     <div class="mb-4 text-center">
-                        <img id="view-profile-picture-display" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img id="view-profile-picture-display" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 1px solid #ddd">
                     </div>
 
                     <!-- Two-Column Layout for Fields -->

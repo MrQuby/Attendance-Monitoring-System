@@ -211,10 +211,78 @@ body {
 
 /* Error message */
 .error-message {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.input-error {
+    border-color: red !important;
+}
+
+/* Signup Success Modal Background */
+#successModal .modal-content {
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 30px;
     text-align: center;
-    color: #dc3545;
-    font-size: 14px;
-    margin-top: 10px;
+    max-width: 370px;
+    margin: auto;
+}
+
+/* Success Icon Styling */
+#successModal .success-icon {
+    font-size: 48px;
+    color: #10b513;
+    margin-bottom: 10px;
+}
+
+/* Title Styling */
+#successModal .modal-title {
+    font-weight: bold;
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Message Text */
+#successModal .modal-body p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* OK Button Styling */
+#successModal .btn-success {
+    background-color: #10b513;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 300px;
+}
+
+#successModal .btn-success:hover {
+    background-color: #10b513;
+}
+
+/* Close Button Styling */
+#successModal .btn-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    color: #888;
+}
+
+#successModal .btn-close:hover {
+    color: #555;
 }
 
 /* Responsive Design */
@@ -238,5 +306,22 @@ body {
 
     .welcome-message p {
         font-size: 14px;
+    }
+}
+
+
+/* Fade-out animation */
+.fade-out {
+    animation: fadeOut 0.5s forwards;
+    /* Adjust duration if needed */
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
     }
 }

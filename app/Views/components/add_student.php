@@ -30,7 +30,7 @@
 
         // Move uploaded file to the uploads directory
         if (move_uploaded_file($fileTmpPath, $destPath)) {
-            $profilePicturePath = 'uploads/' . $fileName; // Set relative path to store in the database
+            $profilePicturePath = 'uploads/' . $fileName;
         }
     }
 

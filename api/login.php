@@ -3,6 +3,7 @@
     ini_set('display_errors', 1);
 
     require_once(__DIR__ . '/../app/Models/Teacher.php');
+    require_once(__DIR__ . '/../app/Models/Admin.php');
     require_once(__DIR__ . '/../app/Models/SessionManager.php');
     require_once(__DIR__ . '/../app/config/database.php');
 
@@ -13,29 +14,42 @@
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             $response = ['status' => 'error', 'message' => 'Invalid CSRF token'];
             $_SESSION['response'] = json_encode($response);
-            header('Location: ../index.php');
+            header('Location: ../app/Views/auth/login_screen.php');
             exit;
         }
 
-        $teacher_id = $_POST['teacher_id'];
-        $password = $_POST['teacher_password'];
+        $id = $_POST['user_id'];
+        $password = $_POST['user_password'];
 
         $teacher = new Teacher($pdo);
-        $result = $teacher->login($teacher_id, $password);
+        $admin = new Admin($pdo);
+
+        $result = $admin->login($id, $password);
+
+        if ($result['status'] === 'success') {
+            SessionManager::startSession();
+            SessionManager::loginAdmin($result['admin']);
+            $_SESSION['success'] = "Welcome back, {$result['admin']['admin_firstname']} {$result['admin']['admin_lastname']}!";
+            $_SESSION['redirect_url'] = '../../Controllers/admin_dashboard.php';
+            header('Location: ../app/Views/auth/login_screen.php');
+            exit;
+        }
+
+        $result = $teacher->login($id, $password);
 
         if ($result['status'] === 'success') {
             SessionManager::startSession();
             SessionManager::loginTeacher($result['teacher']);
-            header('Location: ../app/Controllers/teacher_dashboard.php');
-            exit;
-        } else {
-            $_SESSION['response'] = json_encode($result);
-            header('Location: ../index.php');
+            $_SESSION['success'] = "Welcome back, {$result['teacher']['teacher_firstname']} {$result['teacher']['teacher_lastname']}!";
+            $_SESSION['redirect_url'] = '../../Controllers/teacher_dashboard.php';
+            header('Location: ../app/Views/auth/login_screen.php');
             exit;
         }
-    } else {
-        $response = ['status' => 'error', 'message' => 'Invalid request method'];
-        $_SESSION['response'] = json_encode($response);
-        header('Location: ../index.php');
+
+        
+
+        $_SESSION['response'] = json_encode(['status' => 'error', 'message' => 'Invalid ID or password']);
+        header('Location: ../app/Views/auth/login_screen.php');
+        exit;
     }
 ?>

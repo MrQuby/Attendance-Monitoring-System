@@ -9,11 +9,11 @@
         // Method to fetch all students, with optional filtering by student ID or RFID
         public function getAllStudents($studentId = null, $studentRfid = null) {
             $query = "SELECT students.student_id, students.student_firstname, students.student_lastname, 
-                            students.student_email, students.student_level, students.student_rfid,
+                            students.student_email, students.student_level, students.student_rfid, students.profile_picture,
                             courses.course_id, courses.course_name 
                     FROM students 
                     LEFT JOIN courses ON students.course_id = courses.course_id
-                    WHERE students.deleted = FALSE";  // Only fetch students that are not marked as deleted
+                    WHERE students.deleted = FALSE";
         
             // Add WHERE clause if filtering by student ID or RFID
             if ($studentId) {
@@ -97,7 +97,6 @@
             
             $statement = $this->pdo->prepare($query);
 
-            // Bind parameters
             $statement->bindParam(':studentId', $studentId);
             $statement->bindParam(':studentRfid', $studentRfid);
             $statement->bindParam(':firstName', $firstName);
@@ -142,7 +141,7 @@
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':studentId', $studentId);
             $statement->execute();
-            return $statement->fetchColumn() > 0;  // Returns true if student_id exists
+            return $statement->fetchColumn() > 0;
         }
 
         // Method to check if student_rfid already exists
@@ -151,7 +150,7 @@
             $statement = $this->pdo->prepare($query);
             $statement->bindParam(':studentRfid', $studentRfid);
             $statement->execute();
-            return $statement->fetchColumn() > 0;  // Returns true if student_rfid exists
+            return $statement->fetchColumn() > 0;
         }
 
         // Get all list of course
@@ -178,7 +177,8 @@
                     CONCAT(s.student_firstname, ' ', s.student_lastname) AS full_name,
                     s.student_level,
                     c.course_name,
-                    a.date, -- Directly fetch the date column from the attendance table
+                    s.profile_picture,
+                    a.date,
                     a.time_in,
                     a.time_out
                 FROM attendance a
@@ -190,6 +190,32 @@
             $statement = $this->pdo->prepare($query);
             $statement->execute();
             return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
+        
+        // get total checkin today
+        public function countDistinctCheckInToday() {
+            $query = "
+                SELECT COUNT(DISTINCT student_id) as checkin_count
+                FROM attendance
+                WHERE time_in IS NOT NULL
+                  AND date = CURDATE()
+            ";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC)['checkin_count'];
+        }        
+
+        // get total checkout today
+        public function countDistinctCheckOutToday() {
+            $query = "
+                SELECT COUNT(DISTINCT student_id) as checkout_count
+                FROM attendance
+                WHERE time_out IS NOT NULL
+                  AND date = CURDATE()
+            ";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC)['checkout_count'];
         }        
     }
 ?>

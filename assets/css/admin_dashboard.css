@@ -1,29 +1,12 @@
-@font-face {
-    font-family: 'Bricolage Grotesque';
-    src: url('path/to/BricolageGrotesque-Regular.woff2') format('woff2'),
-        url('path/to/BricolageGrotesque-Regular.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Bricolage Grotesque';
-    src: url('path/to/BricolageGrotesque-Bold.woff2') format('woff2'),
-        url('path/to/BricolageGrotesque-Bold.woff') format('woff');
-    font-weight: bold;
-    font-style: normal;
-}
-
 /* General Reset and Body Styling */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Bricolage Grotesque', sans-serif;
 }
 
 body {
-    font-family: 'Bricolage Grotesque', sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 /* Wrapper and Layout */
@@ -32,29 +15,36 @@ body {
     height: 100vh;
 }
 
-h2 {
-    font-weight: 600 !important;
-}
-
 /* Sidebar Container */
 .sidebar {
     min-width: 250px;
     background: linear-gradient(180deg, #1e2736 0%, #2d3748 100%);
     color: #fff;
-    height: 100vh;
+    height: 95vh;
     display: flex;
     justify-content: space-between;
     flex-direction: column;
     align-items: center;
+    border-radius: 10px;
+    margin: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Sidebar Icon */
 .sidebar .bx-user-circle {
     font-size: 100px;
     color: #2563eb;
     margin-bottom: 8px;
 }
 
+/* Sidebar Title */
+.sidebar h2 {
+    color: #fff;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+/* Sidebar Menu */
 .sidebar-menu {
     list-style: none;
     padding: 0;
@@ -62,6 +52,7 @@ h2 {
     margin-top: 25px;
 }
 
+/* Sidebar Links */
 .sidebar-link {
     display: flex;
     align-items: center;
@@ -72,63 +63,42 @@ h2 {
     font-size: 18px;
     transition: background-color 0.3s, color 0.3s;
     width: 220px;
-    border-radius: 12px;
+    border-radius: 8px;
     margin: 5px auto;
 }
 
+/* Sidebar Link Icon */
 .sidebar-link i {
     font-size: 19px;
     margin-right: 12px;
     color: inherit;
 }
 
+/* Hover Effect */
 .sidebar-link:hover {
     background-color: #3b82f6;
     color: #fff;
 }
 
+/* Active Link */
 .sidebar-link.active {
     background-color: #2563eb;
     color: #fff;
 }
 
-/* LOGO */
-.logo {
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #3874f0 0%, #2d5cd0 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(56, 116, 240, 0.3);
-}
-
-.logo h1 {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-/* User Profile */
+/* User Profile - Enhanced */
 .user-profile {
     padding: 20px;
     background: rgba(0, 0, 0, 0.2);
     display: flex;
     gap: 15px;
+    border-radius: 12px;
     width: 100%;
 }
 
 .user-avatar {
-    width: 55px;
-    height: 55px;
+    width: 50px;
+    height: 50px;
     background: linear-gradient(135deg, #3874f0 0%, #2d5cd0 100%);
     border-radius: 50%;
     display: flex;
@@ -147,22 +117,6 @@ h2 {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Uses Profile Tables */
-.profile-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-}
-
-.profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #ddd;
-}
-
 /* Main Content Styling */
 .main-content {
     flex-grow: 1;
@@ -174,18 +128,17 @@ h2 {
     padding: 10px;
     text-align: center;
     border-bottom: 1px solid #ddd;
-    border-radius: 15px;
 }
 
 .header h1 {
     margin: 0;
-    font-weight: 600;
 }
 
 /* Modal for Alert */
 .modal-content.bg-success {
     border-radius: 5px;
     border: 2px solid #c3e6cb;
+    /* Light green border */
     font-weight: bold;
 }
 
@@ -193,51 +146,110 @@ h2 {
     font-size: 1.1rem;
 }
 
-.input-group-text i {
-    color: #1a75ff !important;
+
+/* Dashboard Cards */
+.dashboard-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-/* Table Styling */
-table {
-    font-family: 'Bricolage Grotesque', sans-serif;
+.card {
+    background-color: #fff;
+    flex: 1 1 calc(25% - 20px);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+.card p {
+    font-size: 2em;
+    color: #2ecc71;
+}
+
+/* Attendance Chart Styles */
+.attendance-chart {
+    background-color: #fff;
+    padding: 20px;
+    margin-top: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-chart h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #34495e;
+}
+
+.scrollable-table-container {
+    max-height: 740px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+.attendance-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.scrollable-table-container {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+.attendance-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #34495e;
+    z-index: 1;
 }
 
-.student-list .table-container {
-    max-height: 75vh;
-    overflow-y: auto;
-    padding: 0;
-    background-color: #ffffff;
+.attendance table td {
+    padding: 10px !important;
+    padding-left: 15px !important;
 }
 
-.attendance .table-container {
-    max-height: 75vh;
-    overflow-y: auto;
-    padding: 0;
-    background-color: #ffffff;
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    vertical-align: middle !important;
+}
+
+table thead {
+    background-color: #34495e;
+    color: #fff;
+}
+
+table th,
+table td {
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle !important;
+}
+
+table tbody tr:hover {
+    background-color: #f2f2f2;
 }
 
 table th {
     padding: 10px 10px 10px 15px !important;
     border: 1px solid #ddd;
-    background-color: #34495e !important;
-    color: #fff !important;
-    position: sticky;
-    top: 0;
 }
 
 table td {
     padding-left: 15px !important;
     border: 1px solid #ddd;
-    padding: 5px 10px !important;
-    vertical-align: middle;
 }
 
 /* Buttons Styling */
@@ -251,10 +263,28 @@ table td {
     margin: 10px 0;
 }
 
-.btn-sm {
-    padding: 1px 8px !important;
-    height: 23px;
-    margin: 0;
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.action-btn {
+    margin-right: 5px;
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+.update-btn {
+    background-color: #f1c40f;
+}
+
+.update-btn:hover {
+    background-color: #d4ac0d;
 }
 
 /* Section Spacing */
@@ -276,6 +306,26 @@ table td {
     opacity: 0;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-cards {
+        flex-direction: column;
+    }
+
+    .card {
+        flex: 1 1 100%;
+    }
+
+    .attendance-chart {
+        margin-top: 20px;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}
+
 /* Small Box Styling (Dashboard Cards) */
 .small-box {
     border-radius: 15px;
@@ -288,6 +338,7 @@ table td {
     flex-direction: column;
     justify-content: space-between;
     height: 150px;
+    /* Set a fixed height */
 }
 
 .small-box:hover {
@@ -322,6 +373,15 @@ table td {
     background: rgba(0, 0, 0, 0.3);
 }
 
+/* Calendar Styling */
+.calendar {
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: #fff;
+    margin-top: 20px;
+}
+
 /* Custom Colors for Small Boxes */
 .bg-aqua {
     background-color: #2563eb !important;
@@ -342,51 +402,60 @@ table td {
 /* Adjust Darker Bottom Bar for "More info" section */
 .bg-aqua .small-box-footer {
     background: #0097bc !important;
+    /* Darker shade for aqua */
 }
 
 .bg-green .small-box-footer {
     background: #008d4c !important;
+    /* Darker shade for green */
 }
 
 .bg-red .small-box-footer {
     background: #d73925 !important;
+    /* Darker shade for red */
 }
 
 .bg-yellow .small-box-footer {
     background: #da8c10 !important;
+    /* Darker shade for yellow */
 }
 
-/* Loading animation */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
+/* Light white color for Font Awesome icons */
+.small-box .icon i,
+#sidebar ul li a i {
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding-top: 20px !important;
+}
+
+
+
+
+
+
+
+
+
+
+.logo {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3874f0 0%, #2d5cd0 100%);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1050;
-    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(56, 116, 240, 0.3);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .dashboard-cards {
-        flex-direction: column;
-    }
-
-    .card {
-        flex: 1 1 100%;
-    }
-
-    .attendance-chart {
-        margin-top: 20px;
-    }
-
-    .modal-content {
-        width: 90%;
-        margin: 20% auto;
-    }
+.logo h1 {
+    font-size: 20px;
+    font-weight: 600;
 }

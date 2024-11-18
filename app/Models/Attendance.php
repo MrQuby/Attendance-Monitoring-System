@@ -2,7 +2,6 @@
     class Attendance {
         private $pdo;
 
-        // Constructor to initialize the PDO instance (database connection)
         public function __construct($pdo) {
             $this->pdo = $pdo;
         }
@@ -20,7 +19,7 @@
             $query = "INSERT INTO attendance (student_id, date, time_in, status) VALUES (:studentId, :date, :timeIn, 'IN')";
             $statement = $this->pdo->prepare($query);
             $statement->execute([':studentId' => $studentId, ':date' => $date, ':timeIn' => $timeIn]);
-            return $this->pdo->lastInsertId(); // Return the ID of the new attendance record
+            return $this->pdo->lastInsertId();
         }
 
         // Method to record a check-out (update an existing attendance entry)

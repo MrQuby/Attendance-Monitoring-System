@@ -6,7 +6,17 @@
     }
 
     $successMessage = isset($_SESSION['success']) ? $_SESSION['success'] : null;
-    unset($_SESSION['success'], $_SESSION['error']);
+    $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+    $input_data = isset($_SESSION['input_data']) ? $_SESSION['input_data'] : [];
+
+    $validation_error = isset($_SESSION['validation_error']);
+    unset($_SESSION['validation_error']);
+    
+    if (!$validation_error && !$successMessage) {
+        unset($_SESSION['input_data'], $_SESSION['errors']);
+    }
+
+    unset($_SESSION['success']);
 ?>
 
 <!DOCTYPE html>
@@ -14,29 +24,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up Page</title>
+    <title>Signup Page</title>
     <link rel="stylesheet" href="/../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/../assets/css/bootstrap.min.css">
 </head>
 <body>
-    <!-- Success Modals -->
-    <?php if ($successMessage): ?>
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="successModalLabel">Success</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body"><?php echo $successMessage; ?></div>
-                    <div class="modal-footer">
-                        <a href="login_screen.php" class="btn btn-primary">Go to Login</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
     <div class="container-login">
         <div class="left-side">
             <div class="logo">
@@ -45,58 +38,85 @@
             <h2><i class="fas fa-user-plus"></i> CREATE ACCOUNT</h2>
             <form method="POST" action="/../api/signup.php" class="signup-form">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                <!-- Form fields -->
                 <div class="name-row">
+                    <!-- First Name -->
                     <div class="form-group">
                         <label for="firstName">First Name</label>
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
-                            <input type="text" name="teacher_firstname" class="form-control" id="firstName" placeholder="First name" required>
+                            <input type="text" name="teacher_firstname" class="form-control <?php echo isset($errors['teacher_firstname']) ? 'input-error' : ''; ?>" id="firstName" placeholder="First name" value="<?php echo htmlspecialchars($input_data['teacher_firstname'] ?? '', ENT_QUOTES); ?>" required>
                         </div>
+                        <?php if (isset($errors['teacher_firstname'])): ?>
+                            <p class="error-message"><?php echo $errors['teacher_firstname']; ?></p>
+                        <?php endif; ?>
                     </div>
+                    <!-- Last Name -->
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
-                            <input type="text" name="teacher_lastname" class="form-control" id="lastName" placeholder="Last name" required>
+                            <input type="text" name="teacher_lastname" class="form-control <?php echo isset($errors['teacher_lastname']) ? 'input-error' : ''; ?>" id="lastName" placeholder="Last name" value="<?php echo htmlspecialchars($input_data['teacher_lastname'] ?? '', ENT_QUOTES); ?>" required>
                         </div>
+                        <?php if (isset($errors['teacher_lastname'])): ?>
+                            <p class="error-message"><?php echo $errors['teacher_lastname']; ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
+                <!-- ID Number -->
                 <div class="form-group">
                     <label for="idNumber">ID Number</label>
                     <div class="input-icon">
                         <i class="fas fa-id-card"></i>
-                        <input type="text" name="teacher_id" class="form-control" id="idNumber" placeholder="SCC-123456" required>
+                        <input type="text" name="teacher_id" class="form-control <?php echo isset($errors['teacher_id']) ? 'input-error' : ''; ?>" id="idNumber" placeholder="SCC-123456" value="<?php echo htmlspecialchars($input_data['teacher_id'] ?? '', ENT_QUOTES); ?>" required>
                     </div>
+                    <?php if (isset($errors['teacher_id'])): ?>
+                        <p class="error-message"><?php echo $errors['teacher_id']; ?></p>
+                    <?php endif; ?>
                 </div>
+                <!-- Email -->
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-icon">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" name="teacher_email" class="form-control" id="email" placeholder="Enter your email" required>
+                        <input type="email" name="teacher_email" class="form-control <?php echo isset($errors['teacher_email']) ? 'input-error' : ''; ?>" id="email" placeholder="Enter your email" value="<?php echo htmlspecialchars($input_data['teacher_email'] ?? '', ENT_QUOTES); ?>" required>
                     </div>
+                    <?php if (isset($errors['teacher_email'])): ?>
+                        <p class="error-message"><?php echo $errors['teacher_email']; ?></p>
+                    <?php endif; ?>
                 </div>
+                <!-- Password -->
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-icon">
                         <i class="fas fa-lock"></i>
-                        <input type="password" name="teacher_password" class="form-control" id="password" placeholder="Create password" required minlength="8">
+                        <input type="password" name="teacher_password" class="form-control <?php echo isset($errors['teacher_password']) ? 'input-error' : ''; ?>" id="password" placeholder="Create password" required>
                         <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                     </div>
+                    <?php if (isset($errors['teacher_password'])): ?>
+                        <?php foreach (explode('. ', $errors['teacher_password']) as $error): ?>
+                            <?php if (!empty($error)): ?>
+                                <p class="error-message"><?php echo $error; ?>.</p>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
+                <!-- Confirm Password -->
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <div class="input-icon">
                         <i class="fas fa-lock"></i>
-                        <input type="password" name="teacher_confirm_password" class="form-control" id="confirmPassword" placeholder="Confirm password" required>
+                        <input type="password" name="teacher_confirm_password" class="form-control <?php echo isset($errors['teacher_confirm_password']) ? 'input-error' : ''; ?>" id="confirmPassword" placeholder="Confirm password" required>
                         <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
                     </div>
+                    <?php if (isset($errors['teacher_confirm_password'])): ?>
+                        <p class="error-message"><?php echo $errors['teacher_confirm_password']; ?></p>
+                    <?php endif; ?>
                 </div>
                 <button type="submit" class="sign-in-button">
                     <i class="fas fa-user-plus"></i> SIGN UP
                 </button>
                 <div class="signup-link">
-                    Already have an account? <a href="../../../index.php">Sign in</a>
+                    Already have an account? <a href="login_screen.php">Sign in</a>
                 </div>
             </form>
         </div>
@@ -110,26 +130,18 @@
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap JS for Modal -->
+    <!-- Success Modal -->
+    <?php if ($successMessage): ?>
+        <?php include __DIR__ . '/../modals/signup_success_modal.php'; ?>
+    <?php endif; ?>
+    <!-- JS -->
     <script src="/../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/../assets/js/toggle_password.js"></script>
     <script>
         <?php if ($successMessage): ?>
-            // Display the success modal when there's a success message
             var successModal = new bootstrap.Modal(document.getElementById('successModal'));
             successModal.show();
         <?php endif; ?>
-
-        // Password toggle script
-        ['togglePassword', 'toggleConfirmPassword'].forEach(id => {
-            document.getElementById(id).addEventListener('click', function () {
-                const field = this.previousElementSibling;
-                const isPassword = field.type === 'password';
-                field.type = isPassword ? 'text' : 'password';
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
-        });
     </script>
 </body>
 </html>

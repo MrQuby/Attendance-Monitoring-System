@@ -6,30 +6,46 @@
             $this->pdo = $pdo;
         }
 
-        // Register a new teacher
-        public function register($teacher_id, $first_name, $last_name, $email, $password) {
-            // Check if the teacher_id or email already exists
-            $query = "SELECT * FROM teachers WHERE teacher_id = :teacher_id OR teacher_email = :email";
+        // Method to check if teacher_id or email already exists
+        public function checkExistence($teacher_id, $email) {
+            $errors = [];
+
+            $query = "SELECT * FROM teachers WHERE teacher_id = :teacher_id";
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':teacher_id', $teacher_id);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $errors['teacher_id'] = 'This ID Number is already registered.';
+            }
+
+            // Check if the email already exists
+            $query = "SELECT * FROM teachers WHERE teacher_email = :email";
+            $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':email', $email);
             $stmt->execute();
-    
+
             if ($stmt->rowCount() > 0) {
-                return ['status' => 'error', 'message' => 'Teacher ID or email already exists.'];
+                $errors['teacher_email'] = 'This email is already registered.';
             }
-    
+
+            return $errors;
+        }
+
+        // Register a new teacher without duplicate checks
+        public function register($teacher_id, $first_name, $last_name, $email, $password) {
+
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
+
             $query = "INSERT INTO teachers (teacher_id, teacher_firstname, teacher_lastname, teacher_email, teacher_password) 
-                      VALUES (:teacher_id, :first_name, :last_name, :email, :password)";
+                    VALUES (:teacher_id, :first_name, :last_name, :email, :password)";
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':teacher_id', $teacher_id);
             $stmt->bindParam(':first_name', $first_name);
             $stmt->bindParam(':last_name', $last_name);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':password', $hashedPassword);
-    
+
             if ($stmt->execute()) {
                 return ['status' => 'success', 'message' => 'Teacher registered successfully.'];
             } else {
@@ -53,15 +69,15 @@
                         'teacher' => [
                             'teacher_id' => $teacher['teacher_id'],
                             'teacher_firstname' => $teacher['teacher_firstname'],
-                            'teacher_lastname' => $teacher['teacher_lastname']
+                            'teacher_lastname' => $teacher['teacher_lastname'],
+                            'teacher_email' => $teacher['teacher_email']
                         ]
                     ];
                 } else {
-                    return ['status' => 'error', 'message' => 'Invalid password.'];
+                    return ['status' => 'error', 'message' => 'ID number or password is incorrect.'];
                 }
             }
-
-            return ['status' => 'error', 'message' => 'Teacher not found.'];
+            return ['status' => 'error', 'message' => 'ID number or password is incorrect.'];
         }
     }
 ?>
