@@ -14,8 +14,12 @@
     }
 
     $studentModel = new Student($pdo);
+
     $studentId = isset($_GET['student_id']) ? $_GET['student_id'] : null;
-    $attendanceRecords = $studentModel->getAttendanceData();
+    $filterStudentId = isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : null;
+    $filterDate = isset($_GET['filter_date']) ? $_GET['filter_date'] : null;
+
+    $attendanceRecords = $studentModel->getAttendanceData($filterStudentId, $filterDate);
     $students = $studentModel->getAllStudents($studentId);
     $distinctCheckInTodayCount = $studentModel->countDistinctCheckInToday();
     $distinctCheckOutTodayCount = $studentModel->countDistinctCheckOutToday();
@@ -32,7 +36,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Information System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/teacher_dashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -45,11 +48,11 @@
             <div>
                 <div class="logo">
                     <div class="logo-icon">👤</div>
-                    <h1>SCC-ITECH</h1>
+                    <h1>SCC-ITECH<br>SOCIETY</h1>
                 </div>
                 <ul class="sidebar-menu">
                     <li><a href="teacher_dashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
-                    <li><a href="teacher_dashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student List</a></li>
+                    <li><a href="teacher_dashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
                     <li><a href="teacher_dashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
                     <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bx bx-log-out"></i> Logout</a></li>
                 </ul>
@@ -65,7 +68,12 @@
         </aside>
         <div class="main-content">
             <header class="header">
-                <h1>Student Information System</h1>
+                <div class="welcome-message">
+                    <h1>Welcome back, <span><?php echo htmlspecialchars($_SESSION['teacher_firstname'] . ' ' . $_SESSION['teacher_lastname']); ?></span></h1>
+                    <div class="datetime-display">
+                        <h2 id="current-time">SUNDAY MAY 19, 2024, 11:34:53 PM</h2>
+                    </div>
+                </div>
             </header>
             <!-- Dashboard Content -->
             <?php if (!isset($_GET['section']) || $_GET['section'] == 'dashboard'): ?>
@@ -126,24 +134,24 @@
             <!-- Student List Content -->
             <?php if (isset($_GET['section']) && $_GET['section'] == 'student-list'): ?>
                 <section class="student-list">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2>Student List</h2>
-                        <!-- Filter search -->
-                        <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
-                            <input type="hidden" name="section" value="student-list">
-                            <!-- Search Input -->
-                            <div class="form-group mb-0 me-2">
-                                <label for="student_id" class="sr-only">Search by Student ID</label>
-                                <input type="text" name="student_id" id="student_id" class="form-control" placeholder="Enter Student ID" value="<?php echo isset($_GET['student_id']) ? $_GET['student_id'] : ''; ?>">
-                            </div>
-                            <!-- Search Button -->
-                            <button type="submit" class="btn btn-primary me-2">Search</button>
-                            <!-- Reset Button -->
-                            <a href="teacher_dashboard.php?section=student-list" class="btn btn-danger">Reset</a>
-                        </form>
-                    </div>
-                    <!-- Student List Table -->
                     <div class="scrollable-table-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2>Student List</h2>
+                            <!-- Filter search -->
+                            <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                                <input type="hidden" name="section" value="student-list">
+                                <!-- Search Input -->
+                                <div class="form-group mb-0 me-2">
+                                    <label for="student_id" class="sr-only">Search by Student ID</label>
+                                    <input type="text" name="student_id" id="student_id" class="form-control" placeholder="Enter Student ID" value="<?php echo isset($_GET['student_id']) ? $_GET['student_id'] : ''; ?>">
+                                </div>
+                                <!-- Search Button -->
+                                <button type="submit" class="btn btn-primary me-2">Search</button>
+                                <!-- Reset Button -->
+                                <a href="teacher_dashboard.php?section=student-list" class="btn btn-danger">Reset</a>
+                            </form>
+                        </div>
+                        <!-- Student List Table -->                   
                         <div class = "table-container">
                             <table class="table table-striped table-hover">
                                 <colgroup>
@@ -207,7 +215,26 @@
             <?php if (isset($_GET['section']) && $_GET['section'] == 'attendance'): ?>
                 <section class="attendance">
                     <div class="scrollable-table-container">
-                        <h2>Attendance List</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2>Attendance List</h2>
+                            <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                                <input type="hidden" name="section" value="attendance">
+                                <!-- Student ID Filter -->
+                                <div class="form-group mb-0 me-2">
+                                    <label for="filter_student_id" class="sr-only">Student ID</label>
+                                    <input type="text" name="filter_student_id" id="filter_student_id" class="form-control" placeholder="Student ID" value="<?php echo isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : ''; ?>">
+                                </div>
+                                <!-- Date Filter -->
+                                <div class="form-group mb-0 me-2">
+                                    <label for="filter_date" class="sr-only">Date</label>
+                                    <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo isset($_GET['filter_date']) ? $_GET['filter_date'] : ''; ?>">
+                                </div>
+                                <!-- Search Button -->
+                                <button type="submit" class="btn btn-primary me-2">Search</button>
+                                <!-- Reset Button -->
+                                <a href="teacher_dashboard.php?section=attendance" class="btn btn-danger">Reset</a>
+                            </form>
+                        </div>
                         <div class = "table-container">
                             <table class= "table table-striped table-hover">
                                 <colgroup>
@@ -274,6 +301,7 @@
     <!-- Loading Animation -->
     <?php include __DIR__ . '/../Views/layouts/logout_animation.php'; ?>
     <!-- JS -->
+    <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/modals.js"></script>
     <script src="../../assets/js/sidebar.js"></script>

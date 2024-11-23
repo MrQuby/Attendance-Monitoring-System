@@ -170,7 +170,7 @@
         }
 
         // get attendance table to display in teacher dashboard
-        public function getAttendanceData() {
+        public function getAttendanceData($studentId = null, $date = null) {
             $query = "
                 SELECT 
                     a.student_id,
@@ -184,13 +184,28 @@
                 FROM attendance a
                 JOIN students s ON a.student_id = s.student_id
                 LEFT JOIN courses c ON s.course_id = c.course_id
-                ORDER BY a.time_in DESC
+                WHERE 1=1
             ";
             
-            $statement = $this->pdo->prepare($query);
-            $statement->execute();
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
+            $params = [];
+            
+            if ($studentId) {
+                $query .= " AND a.student_id = :student_id";
+                $params[':student_id'] = $studentId;
+            }
+            
+            if ($date) {
+                $query .= " AND DATE(a.date) = :date";
+                $params[':date'] = $date;
+            }
+            
+            $query .= " ORDER BY a.time_in DESC";
+            
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+        
         
         // get total checkin today
         public function countDistinctCheckInToday() {
@@ -216,6 +231,6 @@
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC)['checkout_count'];
-        }        
+        }
     }
 ?>
