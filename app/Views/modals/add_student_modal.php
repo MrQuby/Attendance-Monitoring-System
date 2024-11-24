@@ -10,7 +10,7 @@
                     
                     <!-- Profile Picture Upload with Preview -->
                     <div class="mb-4 text-center">
-                        <img id="addProfilePictureDisplay" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img id="addProfilePictureDisplay" src="/../uploads/pp.png" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                         <div class="mt-2">
                             <label for="profile_picture" class="form-label">Profile Picture</label>
                             <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" onchange="previewAddImage(event)">
@@ -60,7 +60,7 @@
                             <!-- Second Column Fields including Guardian fields -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" class="form-control" id="student_birthdate" name="student_birthdate" required>
+                                <input type="date" class="form-control" id="student_birthdate" name="student_birthdate" max="" required>
                             </div>
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
@@ -114,17 +114,21 @@
 </div>
 
 <script>
-    // Function to preview the selected image in the Add Student Modal
     function previewAddImage(event) {
         const reader = new FileReader();
         const imageField = document.getElementById("addProfilePictureDisplay");
 
         reader.onload = function() {
             if (reader.readyState === 2) {
-                imageField.src = reader.result;  // Display the selected image
+                imageField.src = reader.result;
             }
         };
 
         reader.readAsDataURL(event.target.files[0]);
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("student_birthdate").setAttribute("max", today);
+    });
 </script>

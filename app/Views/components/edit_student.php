@@ -1,5 +1,7 @@
 <?php
+
     session_start();
+
     require_once(__DIR__ . '/../../config/database.php');
     require_once(__DIR__ . '/../../Models/Student.php');
 
@@ -21,7 +23,7 @@
     $courseId = $_POST['course_id'];
 
     // Handle profile picture upload
-    $profilePicturePath = null; // Default to null in case no file is uploaded
+    $profilePicturePath = null;
 
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = __DIR__ . '/../../../uploads/';
@@ -35,7 +37,6 @@
 
         // Move the uploaded file to the target directory
         if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
-            // Save the path relative to the project
             $profilePicturePath = 'uploads/' . $fileName;
         }
     }
@@ -46,6 +47,6 @@
     // Set success message in session
     $_SESSION['edit_student_success'] = true;
 
-    header('Location: ../../Controllers/teacher_dashboard.php?section=student-list');
+    header('Location: ../../Controllers/admin_dashboard.php?section=student-list');
     exit;
 ?>

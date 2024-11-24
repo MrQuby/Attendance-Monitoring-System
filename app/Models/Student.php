@@ -232,5 +232,25 @@
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC)['checkout_count'];
         }
+
+        // Check if email exists, excluding the current student ID
+        public function emailExists($email, $studentId) {
+            $query = "SELECT COUNT(*) FROM students WHERE student_email = :email AND student_id != :studentId";
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':email', $email);
+            $statement->bindParam(':studentId', $studentId);
+            $statement->execute();
+            return $statement->fetchColumn() > 0;
+        }
+
+        // Check if RFID exists, excluding the current student ID
+        public function rfidExists($rfid, $studentId) {
+            $query = "SELECT COUNT(*) FROM students WHERE student_rfid = :rfid AND student_id != :studentId";
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':rfid', $rfid);
+            $statement->bindParam(':studentId', $studentId);
+            $statement->execute();
+            return $statement->fetchColumn() > 0;
+        }
     }
 ?>

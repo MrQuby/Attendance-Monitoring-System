@@ -136,7 +136,7 @@
     <?php endif; ?>
     <!-- JS -->
     <script src="/../assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/../assets/js/toggle_password.js"></script>
+    <script src="/../assets/js/togglePassword.js"></script>
     <script>
         <?php if ($successMessage): ?>
             var successModal = new bootstrap.Modal(document.getElementById('successModal'));

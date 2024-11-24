@@ -107,6 +107,7 @@ class SessionManager {
         self::startSession();
         session_unset();
         session_destroy();
+        $_SESSION = [];
     }
 }
 ?>

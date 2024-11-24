@@ -42,6 +42,7 @@
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                 <input type="email" class="form-control" placeholder="Email" id="student-email" name="student_email" required>
                             </div>
+                            <div class="error-message" id="email-error"></div>
                             <!-- Course Field below Email -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-book"></i></span>
@@ -61,12 +62,13 @@
                             <!-- Second Column Fields -->
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" class="form-control" id="student-birthdate" name="student_birthdate" required>
+                                <input type="date" class="form-control" id="student-birthdate" name="student_birthdate" max="" required>
                             </div>
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                 <input type="tel" class="form-control" placeholder="Phone" id="student-phone" name="student_phone" required>
                             </div>
+                            <div class="error-message" id="phone-error"></div>
                             <div class="mb-3 input-group">
                                 <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
                                 <select class="form-select" id="student-gender" name="student_gender" required>
@@ -96,6 +98,7 @@
                                 <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
                                 <input type="tel" class="form-control" placeholder="Guardian Contact" id="guardian-contact" name="guardian_contact">
                             </div>
+                            <div class="error-message" id="guardian-contact-error"></div>
                         </div>
                     </div>
 
@@ -116,7 +119,6 @@
 </div>
 
 <script>
-    // Function to preview the selected image in the Edit Student Modal
     function previewEditProfileImage(event) {
         const reader = new FileReader();
         const imageField = document.getElementById("edit-profile-picture-display");
@@ -129,4 +131,9 @@
 
         reader.readAsDataURL(event.target.files[0]);
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("student-birthdate").setAttribute("max", today);
+    });
 </script>

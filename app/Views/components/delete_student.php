@@ -11,7 +11,7 @@
         if ($studentModel->deleteStudent($studentId)) {
             $_SESSION['delete_student_success'] = true;
         }
-        header('Location: ../../Controllers/teacher_dashboard.php?section=student-list');
+        header('Location: ../../Controllers/admin_dashboard.php?section=student-list');
         exit;
     }
 ?>

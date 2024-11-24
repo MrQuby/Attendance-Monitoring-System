@@ -10,7 +10,6 @@
 
 body {
     font-family: 'Bricolage Grotesque', sans-serif;
-    /* background: #f4f4f4; */
 }
 
 /* Wrapper and Layout */
@@ -81,7 +80,7 @@ h2 {
 
 /* LOGO */
 .logo {
-    padding: 28px;
+    padding: 11px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -133,8 +132,10 @@ h2 {
 
 /* Header */
 .header {
+    height: 87px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background: linear-gradient(135deg, #0785df 0%, #0057ff 100%);
     padding: 22px;
 }
@@ -146,13 +147,13 @@ h2 {
 }
 
 #current-time {
-    font-size: 1.2rem;
+    font-size: 1.7rem;
     color: #fff;
 }
 
 /* User Profile */
 .user-profile {
-    padding: 20px;
+    padding: 20px 20px 10px 20px;
     background: rgba(0, 0, 0, 0.2);
     display: flex;
     gap: 15px;
@@ -171,6 +172,7 @@ h2 {
 }
 
 .user-info h3 {
+    margin-top: 5px;
     font-size: 15px;
     font-weight: 600;
 }
@@ -218,7 +220,7 @@ table {
 }
 
 .attendance .table-container {
-    max-height: 75vh;
+    max-height: 72vh;
     overflow-y: auto;
     padding: 0;
     background-color: #ffffff;

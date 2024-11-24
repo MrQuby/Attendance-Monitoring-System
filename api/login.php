@@ -21,7 +21,7 @@
         $id = $_POST['user_id'];
         $password = $_POST['user_password'];
 
-        $teacher = new Teacher($pdo);
+        
         $admin = new Admin($pdo);
 
         $result = $admin->login($id, $password);
@@ -34,7 +34,8 @@
             header('Location: ../app/Views/auth/login_screen.php');
             exit;
         }
-
+        
+        $teacher = new Teacher($pdo);
         $result = $teacher->login($id, $password);
 
         if ($result['status'] === 'success') {
@@ -45,8 +46,6 @@
             header('Location: ../app/Views/auth/login_screen.php');
             exit;
         }
-
-        
 
         $_SESSION['response'] = json_encode(['status' => 'error', 'message' => 'Invalid ID or password']);
         header('Location: ../app/Views/auth/login_screen.php');
