@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (addStudentBtn) {
         addStudentBtn.addEventListener('click', function () {
-            document.getElementById('add-student-form').setAttribute('action', '../../app/Views/components/add_student.php');
+            document.getElementById('add-student-form').setAttribute('action', '../../app/Views/components/addStudent.php');
 
             document.getElementById('student-id').value = '';
             document.getElementById('student-rfid').value = '';
@@ -29,7 +29,7 @@ document.querySelectorAll('.edit-student-btn').forEach(button => {
     button.addEventListener('click', function () {
         const studentId = this.getAttribute('data-id');
 
-        fetch(`/app/Views/components/get_student.php?student_id=${studentId}`)
+        fetch(`/app/Views/components/getStudent.php?student_id=${studentId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -74,7 +74,7 @@ function previewEditProfileImage(event) {
 document.querySelectorAll('.view-student-btn').forEach(function (button) {
     button.addEventListener('click', function () {
         const studentId = this.getAttribute('data-id');
-        fetch(`/app/Views/components/get_student.php?student_id=${studentId}`)
+        fetch(`/app/Views/components/getStudent.php?student_id=${studentId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -102,5 +102,33 @@ document.querySelectorAll('.view-student-btn').forEach(function (button) {
                 }
             })
             .catch(error => console.error('AJAX error:', error));
+    });
+});
+
+// Handle Delete Student Modals
+document.addEventListener("DOMContentLoaded", function () {
+    let deleteForm;
+
+    document.querySelectorAll(".delete-student-btn").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            deleteForm = this.closest("form");
+            const deleteModal = new bootstrap.Modal(document.getElementById("deleteConfirmationModal"));
+            deleteModal.show();
+        });
+    });
+
+    document.getElementById("confirmDeleteButton").addEventListener("click", function () {
+        if (deleteForm) deleteForm.submit();
+
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById("deleteConfirmationModal"));
+        deleteModal.hide();
+
+        const successModal = new bootstrap.Modal(document.getElementById("deleteSuccessModal"));
+        successModal.show();
+
+        setTimeout(() => {
+            successModal.hide();
+        }, 3000);
     });
 });

@@ -10,7 +10,7 @@
                 <p><?php echo $successMessage; ?></p>
             </div>
             <div class="justify-content-center">
-                <a href="login_screen.php" id="continueButton" type="button" class="btn btn-success">Continue</a>
+                <a href="loginScreen.php" id="continueButton" type="button" class="btn btn-success">Continue</a>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         document.body.classList.add('fade-out');
 
         setTimeout(function () {
-            window.location.href = 'login_screen.php';
+            window.location.href = 'loginScreen.php';
         }, 500);
     });
 </script>

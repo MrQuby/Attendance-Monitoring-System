@@ -14,5 +14,5 @@
 
 <script>
     localStorage.removeItem('activeLink');
-    window.location.href = '../../app/Views/auth/login_screen.php';
+    window.location.href = '../../app/Views/auth/loginScreen.php';
 </script>

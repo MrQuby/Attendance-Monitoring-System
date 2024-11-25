@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>St. Cecilia's College - Cebu, Inc.</title>
-    <link rel="stylesheet" href="../../assets/css/attendance_dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/attendanceDashboard.css">
+    <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
 </head>
 <body>
     <div class="header">
@@ -38,21 +39,21 @@
 
                 <div class="status-box">
                     <div class="table-container">
-                        <table>
+                        <table class="table table-striped table-hover">
                             <colgroup>
                                 <col style="width: 15%;">
                                 <col style="width: 30%;">
-                                <col style="width: 15%;">
-                                <col style="width: 15%;">
                                 <col style="width: 25%;">
+                                <col style="width: 15%;">
+                                <col style="width: 15%;">
                             </colgroup>
                             <thead>
                                 <tr>
                                     <th>Student ID</th>
                                     <th>Full Name</th>
+                                    <th>Date</th>
                                     <th>Time In</th>
                                     <th>Time Out</th>
-                                    <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody id="attendance-table-body">

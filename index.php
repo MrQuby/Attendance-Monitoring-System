@@ -1,4 +1,4 @@
 <?php
-    header('Location: /../app/Views/auth/login_screen.php');
+    header('Location: /../app/Views/auth/loginScreen.php');
     exit;
 ?>

@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="add-student-form" action="/app/Views/components/add_student.php" method="POST" enctype="multipart/form-data">
+                <form id="add-student-form" action="/app/Views/components/addStudent.php" method="POST" enctype="multipart/form-data">
                     
                     <!-- Profile Picture Upload with Preview -->
                     <div class="mb-4 text-center">

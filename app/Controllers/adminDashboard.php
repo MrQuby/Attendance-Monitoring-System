@@ -9,7 +9,7 @@
 
     SessionManager::startSession();
     if (!SessionManager::isAdminLoggedIn()) {
-        header('Location: ../../app/Views/auth/login_screen.php');
+        header('Location: ../../app/Views/auth/loginScreen.php');
         exit;
     }
 
@@ -51,7 +51,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Information System</title>
-    <link rel="stylesheet" href="../../assets/css/admin_dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/adminDashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -66,9 +66,9 @@
                     <h1>SCC-ITECH<br>SOCIETY</h1>
                 </div>
                 <ul class="sidebar-menu">
-                    <li><a href="admin_dashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
-                    <li><a href="admin_dashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
-                    <li><a href="admin_dashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
+                    <li><a href="adminDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
+                    <li><a href="adminDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
+                    <li><a href="adminDashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
                     <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bx bx-log-out"></i>Logout</a></li>
                 </ul>
             </div>
@@ -156,7 +156,7 @@
                             <!-- Add Student Button -->
                             <button type="button" class="btn btn-success" id="add-student-btn" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add Student</button>
                             <!-- Filter search form positioned to the right and aligned in a row -->
-                            <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                            <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
                                 <input type="hidden" name="section" value="student-list">
                                 <!-- Search Input -->
                                 <div class="form-group mb-0 me-2">
@@ -166,7 +166,7 @@
                                 <!-- Search Button -->
                                 <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
-                                <a href="teacher_dashboard.php?section=student-list" class="btn btn-danger">Reset</a>
+                                <a href="adminDashboard.php?section=student-list" class="btn btn-danger">Reset</a>
                             </form>
                         </div>
                         <!-- Student List Table -->
@@ -176,9 +176,9 @@
                                     <col style="width: 10%;">
                                     <col style="width: 17%;">
                                     <col style="width: 17%;">
-                                    <col style="width: 16%;">
+                                    <col style="width: 13%;">
                                     <col style="width: 30%;">
-                                    <col style="width: 10%;">
+                                    <col style="width: 13%;">
                                 </colgroup>
                                 <thead>
                                 <tr>
@@ -234,7 +234,7 @@
                                                     <i class='bx bxs-edit'></i>
                                                 </button>
                                                 <!-- Delete button with only the icon displayed -->
-                                                <form action="/app/Views/components/delete_student.php" method="post" style="display:inline-block;">
+                                                <form action="/app/Views/components/deleteStudent.php" method="post" style="display:inline-block;">
                                                     <input type="hidden" name="student_id" value="<?php echo $student['student_id']; ?>">
                                                     <button type="button" class="btn btn-danger btn-sm delete-student-btn">
                                                         <i class='bx bxs-trash'></i>
@@ -259,7 +259,7 @@
                         <div class="scrollable-table-container">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h2>Attendance List</h2>
-                                <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                                <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
                                     <input type="hidden" name="section" value="attendance">
                                     <!-- Student ID Filter -->
                                     <div class="form-group mb-0 me-2">
@@ -274,7 +274,7 @@
                                     <!-- Search Button -->
                                     <button type="submit" class="btn btn-primary me-2">Search</button>
                                     <!-- Reset Button -->
-                                    <a href="teacher_dashboard.php?section=attendance" class="btn btn-danger">Reset</a>
+                                    <a href="adminDashboard.php?section=attendance" class="btn btn-danger">Reset</a>
                                 </form>
                             </div>
                             <div class="table-container">
@@ -336,116 +336,24 @@
                 </section>
             <?php endif; ?>
             <!-- Modals for View, Add, Edit, Delete -->
-            <?php include __DIR__ . '/../Views/modals/view_student_modal.php'; ?>
-            <?php include __DIR__ . '/../Views/modals/add_student_modal.php'; ?>
-            <?php include __DIR__ . '/../Views/modals/edit_student_modal.php'; ?>
-            <?php include __DIR__ . '/../Views/modals/delete_student_modal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/viewStudentModal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/addStudentModal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/editStudentModal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/deleteStudentModal.php'; ?>
             <!-- Logout Confirmation Modal -->
-            <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to logout?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <a href="#" class="btn btn-danger" id="confirmLogout">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php include __DIR__ . '/../Views/modals/logoutConfirmationModal.php'; ?>
         </div>
     </div>
     <!-- Loading Animation -->
-    <div id="loadingSpinner" class="loading-overlay d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden"></span>
-        </div>
-        <p>Logging out...</p>
-    </div>
+    <?php include __DIR__ . '/../Views/layouts/logoutAnimation.php'; ?>
     <!-- Success Modals for Add, Edit, and Delete Actions -->
-    <?php if ($addStudentSuccess): ?>
-        <div class="modal fade" id="addStudentSuccessModal" tabindex="-1" aria-labelledby="addStudentSuccessModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content bg-success text-white">
-                    <div class="modal-body text-center">
-                        <p id="alertMessage" class="mb-0">Student Added Successfully</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-    <?php if ($deleteStudentSuccess): ?>
-        <div class="modal fade" id="deleteSuccessModal" tabindex="-1" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content bg-success text-white">
-                    <div class="modal-body text-center">
-                        <p id="alertMessage" class="mb-0">Student Deleted Successfully</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-    <?php if ($editSuccess): ?>
-        <div class="modal fade" id="editStudentSuccessModal" tabindex="-1" aria-labelledby="editStudentSuccessModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content bg-success text-white">
-                    <div class="modal-body text-center">
-                        <p id="alertMessage" class="mb-0">Student Updated Successfully</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
+    <?php include __DIR__ . '/../Views/modals/successModals.php'; ?>
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/modals.js"></script>
-    <script src="../../assets/js/delete_modals.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
-    <script>
-        document.getElementById("confirmLogout").addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const logoutModal = document.getElementById("logoutModal");
-            const bootstrapModal = bootstrap.Modal.getInstance(logoutModal);
-            bootstrapModal.hide();
-
-            const loadingSpinner = document.getElementById("loadingSpinner");
-            loadingSpinner.classList.remove("d-none");
-
-            setTimeout(function () {
-                window.location.href = "logout.php";
-            }, 2000);
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Trigger Add Success Modal
-            <?php if ($addStudentSuccess): ?>
-                const addStudentModal = new bootstrap.Modal(document.getElementById('addStudentSuccessModal'));
-                addStudentModal.show();
-                setTimeout(() => addStudentModal.hide(), 3000);
-            <?php endif; ?>
-
-            // Trigger Delete Success Modal
-            <?php if ($deleteStudentSuccess): ?>
-                const deleteSuccessModal = new bootstrap.Modal(document.getElementById('deleteSuccessModal'));
-                deleteSuccessModal.show();
-                setTimeout(() => deleteSuccessModal.hide(), 3000);
-            <?php endif; ?>
-
-            // Trigger Edit Success Modal
-            <?php if ($editSuccess): ?>
-                const editSuccessModal = new bootstrap.Modal(document.getElementById('editStudentSuccessModal'));
-                editSuccessModal.show();
-                setTimeout(() => editSuccessModal.hide(), 3000);
-            <?php endif; ?>
-        });
-    </script>
+    <script src="../../assets/js/logout.js"></script>
+    
 </body>
 </html>

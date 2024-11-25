@@ -1,7 +1,7 @@
 <?php
     session_start();
     
-    $redirectUrl = $_SESSION['redirect_url'] ?? '../../Controllers/teacher_dashboard.php';
+    $redirectUrl = $_SESSION['redirect_url'] ?? '../../Controllers/teacherDashboard.php';
 
     unset($_SESSION['errors'], $_SESSION['input_data']);
     unset($_SESSION['redirect_url']);
@@ -89,7 +89,7 @@
                     <i class="fas fa-sign-in-alt"></i> SIGN IN
                 </button>
                     <div class="signup-link">
-                        Don't have an account? <a href="signup_screen.php">Sign up</a>
+                        Don't have an account? <a href="signupScreen.php">Sign up</a>
                     </div>
                 <div class="error-message"></div>
             </form>
@@ -106,7 +106,7 @@
     </div>
     <!-- Login Success Modal -->
     <?php if ($successMessage): ?>
-        <?php include __DIR__ . '/../modals/login_success_modal.php'; ?>
+        <?php include __DIR__ . '/../modals/loginSuccessModal.php'; ?>
     <?php endif; ?>
     <!-- JS -->
     <script src="/../assets/js/bootstrap.bundle.min.js"></script>

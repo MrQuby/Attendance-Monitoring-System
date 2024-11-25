@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function processRFID(rfid) {
-        fetch("../Views/components/mark_attendance.php", {
+        fetch("../Views/components/markAttendance.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rfid: rfid })

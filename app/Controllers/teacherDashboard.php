@@ -9,7 +9,7 @@
 
     SessionManager::startSession();
     if (!SessionManager::isTeacherLoggedIn()) {
-        header('Location: ../../app/Views/auth/login_screen.php');
+        header('Location: ../../app/Views/auth/loginScreen.php');
         exit;
     }
 
@@ -36,7 +36,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Information System</title>
-    <link rel="stylesheet" href="../../assets/css/teacher_dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/teacherDashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="../../assets/css/bootstrap.min.css">
@@ -51,9 +51,9 @@
                     <h1>SCC-ITECH<br>SOCIETY</h1>
                 </div>
                 <ul class="sidebar-menu">
-                    <li><a href="teacher_dashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
-                    <li><a href="teacher_dashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
-                    <li><a href="teacher_dashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
+                    <li><a href="teacherDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
+                    <li><a href="teacherDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
+                    <li><a href="teacherDashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
                     <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bx bx-log-out"></i>Logout</a></li>
                 </ul>
             </div>
@@ -139,7 +139,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2>Student List</h2>
                             <!-- Filter search -->
-                            <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                            <form method="GET" action="teacherDashboard.php" class="d-flex align-items-center">
                                 <input type="hidden" name="section" value="student-list">
                                 <!-- Search Input -->
                                 <div class="form-group mb-0 me-2">
@@ -149,7 +149,7 @@
                                 <!-- Search Button -->
                                 <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
-                                <a href="teacher_dashboard.php?section=student-list" class="btn btn-danger">Reset</a>
+                                <a href="teacherDashboard.php?section=student-list" class="btn btn-danger">Reset</a>
                             </form>
                         </div>
                         <!-- Student List Table -->                   
@@ -218,7 +218,7 @@
                     <div class="scrollable-table-container">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2>Attendance List</h2>
-                            <form method="GET" action="teacher_dashboard.php" class="d-flex align-items-center">
+                            <form method="GET" action="teacherDashboard.php" class="d-flex align-items-center">
                                 <input type="hidden" name="section" value="attendance">
                                 <!-- Student ID Filter -->
                                 <div class="form-group mb-0 me-2">
@@ -233,7 +233,7 @@
                                 <!-- Search Button -->
                                 <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
-                                <a href="teacher_dashboard.php?section=attendance" class="btn btn-danger">Reset</a>
+                                <a href="teacherDashboard.php?section=attendance" class="btn btn-danger">Reset</a>
                             </form>
                         </div>
                         <div class="table-container">
@@ -294,13 +294,13 @@
                 </section>
             <?php endif; ?>
             <!-- Modals for View -->
-            <?php include __DIR__ . '/../Views/modals/view_student_modal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/viewStudentModal.php'; ?>
             <!-- Logout Confirmation Modal -->
-            <?php include __DIR__ . '/../Views/modals/logout_confirmation_modal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/logoutConfirmationModal.php'; ?>
         </div>
     </div>
     <!-- Loading Animation -->
-    <?php include __DIR__ . '/../Views/layouts/logout_animation.php'; ?>
+    <?php include __DIR__ . '/../Views/layouts/logoutAnimation.php'; ?>
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>

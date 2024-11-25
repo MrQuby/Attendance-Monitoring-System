@@ -1,6 +1,7 @@
 <?php
+
     session_start();
-    
+
     require_once(__DIR__ . '/../../config/database.php');
     require_once(__DIR__ . '/../../Models/Student.php');
 
@@ -20,25 +21,32 @@
     $guardianContact = $_POST['guardian_contact'];
     $level = $_POST['student_level'];
     $courseId = $_POST['course_id'];
-    $defaultImagePath = '../../../uploads/pp.png';
 
     // Handle profile picture upload
-    $profilePicturePath = $defaultImagePath;
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
-        $fileName = uniqid() . '-' . basename($_FILES['profile_picture']['name']);
-        $uploadDir = __DIR__ . '/../../../uploads/';
-        $destPath = $uploadDir . $fileName;
+    $profilePicturePath = null;
 
-        if (move_uploaded_file($fileTmpPath, $destPath)) {
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/../../../uploads/';
+        $fileName = basename($_FILES['profile_picture']['name']);
+        $targetFilePath = $uploadDir . $fileName;
+        
+        // Check if the directory exists, create it if it doesn't
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
             $profilePicturePath = 'uploads/' . $fileName;
         }
     }
 
-    $studentModel->addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath, $studentRfid);
+    // Update the student in the database with all new fields, including the profile picture path
+    $studentModel->updateStudent($studentId, $studentRfid, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
 
-    $_SESSION['add_student_success'] = true;
-    
-    header('Location: ../../Controllers/admin_dashboard.php?section=student-list');
+    // Set success message in session
+    $_SESSION['edit_student_success'] = true;
+
+    header('Location: ../../Controllers/adminDashboard.php?section=student-list');
     exit;
 ?>

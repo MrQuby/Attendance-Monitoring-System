@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let rfidBuffer = ''; // Temporary storage for RFID data
 
     function loadAttendanceTable() {
-        fetch("../Views/components/get_attendance_table.php")
+        fetch("../Views/components/getAttendanceTable.php")
             .then(response => response.text())
             .then(html => {
                 attendanceTableBody.innerHTML = html; // Update the table body
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function processRFID(rfid) {
-        fetch("../Views/components/mark_attendance.php", {
+        fetch("../Views/components/markAttendance.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rfid: rfid })

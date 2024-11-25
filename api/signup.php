@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['error'] = 'Invalid CSRF token';
-        header('Location: ../app/Views/auth/signup_screen.php');
+        header('Location: ../app/Views/auth/signupScreen.php');
         exit;
     }
 
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // If there are any validation errors, redirect back with errors
     if (!empty($_SESSION['errors'])) {
         $_SESSION['validation_error'] = true;
-        header('Location: ../app/Views/auth/signup_screen.php');
+        header('Location: ../app/Views/auth/signupScreen.php');
         exit;
     }
 
@@ -100,14 +100,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['status'] === 'success') {
         $_SESSION['success'] = 'Your account has been created successfully.';
         unset($_SESSION['input_data'], $_SESSION['validation_error']);
-        header('Location: ../app/Views/auth/signup_screen.php');
+        header('Location: ../app/Views/auth/signupScreen.php');
     } else {
         $_SESSION['errors']['general'] = $result['message'];
         $_SESSION['validation_error'] = true;
-        header('Location: ../app/Views/auth/signup_screen.php');
+        header('Location: ../app/Views/auth/signupScreen.php');
     }
     exit;
 } else {
     $_SESSION['error'] = 'Invalid request method';
-    header('Location: ../app/Views/auth/signup_screen.php');
+    header('Location: ../app/Views/auth/signupScreen.php');
 }

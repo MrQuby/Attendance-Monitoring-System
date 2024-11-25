@@ -116,7 +116,7 @@
                     <i class="fas fa-user-plus"></i> SIGN UP
                 </button>
                 <div class="signup-link">
-                    Already have an account? <a href="login_screen.php">Sign in</a>
+                    Already have an account? <a href="loginScreen.php">Sign in</a>
                 </div>
             </form>
         </div>
@@ -132,7 +132,7 @@
     </div>
     <!-- Success Modal -->
     <?php if ($successMessage): ?>
-        <?php include __DIR__ . '/../modals/signup_success_modal.php'; ?>
+        <?php include __DIR__ . '/../modals/signupSuccessModal.php'; ?>
     <?php endif; ?>
     <!-- JS -->
     <script src="/../assets/js/bootstrap.bundle.min.js"></script>
