@@ -199,7 +199,7 @@
                 $params[':date'] = $date;
             }
             
-            $query .= " ORDER BY a.time_in DESC";
+            $query .= " ORDER BY a.date DESC, a.time_in DESC";
             
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($params);

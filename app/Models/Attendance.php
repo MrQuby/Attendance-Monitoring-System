@@ -24,7 +24,7 @@
 
         // Method to record a check-out (update an existing attendance entry)
         public function recordCheckOut($attendanceId, $timeOut) {
-            $query = "UPDATE attendance SET time_out = :timeOut, status = 'OUT' WHERE attendance_id = :attendanceId";
+            $query = "UPDATE attendance SET time_out = :timeOut, status = 'OUT', created_at = CURRENT_TIMESTAMP WHERE attendance_id = :attendanceId";
             $statement = $this->pdo->prepare($query);
             $statement->execute([':timeOut' => $timeOut, ':attendanceId' => $attendanceId]);
         }
@@ -40,6 +40,26 @@
             $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
             $statement->execute();
             return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function getLastAttendanceRecord($studentId) {
+            $query = "SELECT * FROM attendance 
+                      WHERE student_id = :student_id 
+                      ORDER BY created_at DESC 
+                      LIMIT 1";
+            
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':student_id', $studentId);
+            $statement->execute();
+            return $statement->fetch(PDO::FETCH_ASSOC);
+        }
+
+        // Method to check if student already checked out today
+        public function hasCheckedOutToday($studentId, $date) {
+            $query = "SELECT * FROM attendance WHERE student_id = :studentId AND date = :date AND time_out IS NOT NULL";
+            $statement = $this->pdo->prepare($query);
+            $statement->execute([':studentId' => $studentId, ':date' => $date]);
+            return $statement->fetch(PDO::FETCH_ASSOC);
         }
     }
 ?>

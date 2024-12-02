@@ -6,12 +6,17 @@
     require_once(__DIR__ . '/../Models/SessionManager.php');
     require_once(__DIR__ . '/../config/database.php');
     require_once(__DIR__ . '/../Models/Student.php');
+    require_once(__DIR__ . '/../Models/Teacher.php');
 
     SessionManager::startSession();
     if (!SessionManager::isAdminLoggedIn()) {
         header('Location: ../../app/Views/auth/loginScreen.php');
         exit;
     }
+
+    // Initialize Teacher Model
+    $teacherModel = new Teacher($pdo);
+    $totalTeachers = $teacherModel->countTotalTeachers();
 
     $studentModel = new Student($pdo);
 
@@ -66,10 +71,10 @@
                     <h1>SCC-ITECH<br>SOCIETY</h1>
                 </div>
                 <ul class="sidebar-menu">
-                    <li><a href="adminDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
-                    <li><a href="adminDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
-                    <li><a href="adminDashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
-                    <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bx bx-log-out"></i>Logout</a></li>
+                    <li><a href="adminDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="adminDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="fas fa-user-graduate"></i> Student</a></li>
+                    <li><a href="adminDashboard.php?section=teacher-list" class="sidebar-link <?php echo ($section === 'teacher-list') ? 'active' : ''; ?>"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                    <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>
             <!-- Admin Profile -->
@@ -105,6 +110,18 @@
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-user-friends"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Total Teachers -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="small-box bg-purple shadow-sm">
+                                <div class="inner">
+                                    <h3 style="font-size: 30px"><?php echo $totalTeachers; ?></h3>
+                                    <p style="font-size: 25px">Total Teachers</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-chalkboard-teacher"></i>
                                 </div>
                             </div>
                         </div>
@@ -251,88 +268,69 @@
                                 </tbody>
                             </table>
                         </div>
-                    </section>
-                <?php endif; ?>
-                <!-- Attendance List Content -->
-                <?php if (isset($_GET['section']) && $_GET['section'] == 'attendance'): ?>
-                    <section class="attendance">
-                        <div class="scrollable-table-container">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h2>Attendance List</h2>
-                                <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
-                                    <input type="hidden" name="section" value="attendance">
-                                    <!-- Student ID Filter -->
-                                    <div class="form-group mb-0 me-2">
-                                        <label for="filter_student_id" class="sr-only">Student ID</label>
-                                        <input type="text" name="filter_student_id" id="filter_student_id" class="form-control" placeholder="Student ID" value="<?php echo isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : ''; ?>">
-                                    </div>
-                                    <!-- Date Filter -->
-                                    <div class="form-group mb-0 me-2">
-                                        <label for="filter_date" class="sr-only">Date</label>
-                                        <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo isset($_GET['filter_date']) ? $_GET['filter_date'] : ''; ?>">
-                                    </div>
-                                    <!-- Search Button -->
-                                    <button type="submit" class="btn btn-primary me-2">Search</button>
-                                    <!-- Reset Button -->
-                                    <a href="adminDashboard.php?section=attendance" class="btn btn-danger">Reset</a>
-                                </form>
-                            </div>
-                            <div class="table-container">
-                                <table class="table table-striped table-hover">
-                                    <colgroup>
-                                        <col style="width: 10%;">
-                                        <col style="width: 20%;">
-                                        <col style="width: 15%;">
-                                        <col style="width: 20%;">
-                                        <col style="width: 15%;">
-                                        <col style="width: 10%;">
-                                        <col style="width: 10%;">
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Student</th>
-                                            <th>Year Level</th>
-                                            <th>Course</th>
-                                            <th>Date</th>
-                                            <th>Check-In</th>
-                                            <th>Check-Out</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (!empty($attendanceRecords)): ?>
-                                            <?php foreach ($attendanceRecords as $record): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($record['student_id']); ?></td>
-                                                    <td>
-                                                        <div class="profile-container">
-                                                            <img src="<?php echo $record['profile_picture']
-                                                            ? '/' . $record['profile_picture']
-                                                            :'/uploads/profile.jpg';?>"
-                                                                alt="Profile Picture" 
-                                                                class="profile-pic">
-                                                            <span><?php echo htmlspecialchars($record['full_name']); ?></span>
-                                                        </div>
-                                                    </td>
-                                                    <td><?php echo htmlspecialchars($record['student_level']); ?></td>
-                                                    <td><?php echo htmlspecialchars($record['course_name']); ?></td>
-                                                    <td><?php echo date("F d, Y", strtotime($record['date'])); ?></td>
-                                                    <td style="color: <?php echo $record['time_in'] ? 'green' : 'gray'; ?>">
-                                                        <?php echo $record['time_in'] ? date("h:i A", strtotime($record['time_in'])) : 'N/A'; ?></td>
-                                                    <td style="color: <?php echo $record['time_out'] ? 'red' : 'gray'; ?>">
-                                                        <?php echo $record['time_out'] ? date("h:i A", strtotime($record['time_out'])) : 'N/A'; ?></td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <tr>
-                                                <td colspan="7" class="text-center" style="padding: 20px 0;">No attendance records found.</td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                    </div>
+                </section>
+            <?php endif; ?>
+            <!-- Teacher List Content -->
+            <?php if (isset($_GET['section']) && $_GET['section'] == 'teacher-list'): ?>
+                <section class="teacher-list">
+                    <div class="scrollable-table-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2>Teacher List</h2>
+                            <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
+                                <input type="hidden" name="section" value="teacher-list">
+                                <!-- Teacher ID Filter -->
+                                <div class="form-group mb-0 me-2">
+                                    <label for="filter_teacher_id" class="sr-only">Teacher ID</label>
+                                    <input type="text" name="filter_teacher_id" id="filter_teacher_id" class="form-control" placeholder="Teacher ID" value="<?php echo isset($_GET['filter_teacher_id']) ? $_GET['filter_teacher_id'] : ''; ?>">
+                                </div>
+                                <!-- Search Button -->
+                                <button type="submit" class="btn btn-primary me-2">Search</button>
+                                <!-- Reset Button -->
+                                <a href="adminDashboard.php?section=teacher-list" class="btn btn-danger">Reset</a>
+                            </form>
                         </div>
-                    </div>   
+                        <div class="table-container">
+                            <table class="table table-striped table-hover">
+                                <colgroup>
+                                    <col style="width: 15%;">
+                                    <col style="width: 25%;">
+                                    <col style="width: 25%;">
+                                    <col style="width: 35%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Teacher ID</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    // You'll need to implement a method in the Teacher model to get teachers
+                                    $teacherModel = new Teacher($pdo);
+                                    $filterTeacherId = isset($_GET['filter_teacher_id']) ? $_GET['filter_teacher_id'] : null;
+                                    $teachers = $teacherModel->getAllTeachers($filterTeacherId);
+                                    
+                                    if (!empty($teachers)): ?>
+                                        <?php foreach ($teachers as $teacher): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($teacher['teacher_id']); ?></td>
+                                                <td><?php echo htmlspecialchars($teacher['teacher_firstname']); ?></td>
+                                                <td><?php echo htmlspecialchars($teacher['teacher_lastname']); ?></td>
+                                                <td><?php echo htmlspecialchars($teacher['teacher_email']); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center" style="padding: 20px 0;">No teachers found.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>  
                 </section>
             <?php endif; ?>
             <!-- Modals for View, Add, Edit, Delete -->

@@ -79,5 +79,37 @@
             }
             return ['status' => 'error', 'message' => 'ID number or password is incorrect.'];
         }
+
+        public function getAllTeachers($filterTeacherId = null) {
+            $query = "SELECT * FROM teachers";
+            $conditions = [];
+            $params = [];
+        
+            if ($filterTeacherId) {
+                $conditions[] = "teacher_id LIKE :teacher_id";
+                $params[':teacher_id'] = "%{$filterTeacherId}%";
+            }
+        
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(" AND ", $conditions);
+            }
+        
+            $stmt = $this->pdo->prepare($query);
+            
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+        
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function countTotalTeachers() {
+            $query = "SELECT COUNT(*) as total_teachers FROM teachers";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total_teachers'];
+        }
     }
 ?>

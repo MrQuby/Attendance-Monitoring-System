@@ -19,7 +19,7 @@ body {
 
 /* Header Styling */
 .header {
-    background-color: #1a75ff;
+    background: linear-gradient(105deg, #0057ff 0%, #0785df 100%);
     color: white;
     padding: 10px 20px;
     display: flex;
@@ -33,17 +33,39 @@ body {
     gap: 20px;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-left h1 {
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin: 8px 0 -5px 0 !important;
+}
+
+.header-left h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
 .logo-img {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
+}
+
+.logo-text {
+    width: 120px;
+    height: 80px;
 }
 
 
 /* Main Content Area Styling */
 .main-content {
-    background-color: #1a75ff;
+    background: linear-gradient(105deg, #0057ff 0%, #0785df 100%);
     color: white;
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     height: calc(100vh - 80px);
     overflow: hidden;
 }
@@ -51,16 +73,16 @@ body {
 /* Date and Time Display Styling */
 .datetime-display {
     background-color: white;
-    padding: 15px;
+    padding: 5px 0 1px 0;
     border-radius: 5px;
     color: #1a75ff;
     margin-bottom: 20px;
     text-align: center;
-    font-weight: 30px;
 }
 
 #current-time {
-    font-size: 40px;
+    font-size: 50px;
+    font-weight: bold;
 }
 
 /* Content Layout Grid */
@@ -77,10 +99,6 @@ body {
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;
-}
-
-.status-box {
-    text-align: center;
 }
 
 /* Student Card Content Styling */
@@ -105,6 +123,7 @@ body {
     margin: 0 auto;
     display: block;
     border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
 .small-avatar {
@@ -112,6 +131,7 @@ body {
     height: 350px;
     display: block;
     border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
 /* Student Details and Text Styling */
@@ -208,12 +228,12 @@ table {
 table td {
     padding-left: 15px !important;
     border: 1px solid #ddd;
-    padding: 5px 10px !important;
+    padding: 5px 15px !important;
     vertical-align: middle;
 }
 
 table th {
-    padding: 10px 10px 10px 15px !important;
+    padding: 10px 15px !important;
     border: 1px solid #ddd;
     background-color: #34495e !important;
     color: #fff !important;

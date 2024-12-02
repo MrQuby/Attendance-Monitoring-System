@@ -4,7 +4,7 @@
     require_once(__DIR__ . '/../../Models/Attendance.php');
 
     header("Content-Type: application/json");
-    date_default_timezone_set('Asia/Singapore'); // Ensure timezone is set
+    date_default_timezone_set('Asia/Singapore');
 
     $data = json_decode(file_get_contents("php://input"), true);
     $rfid = $data['rfid'] ?? null;
@@ -16,11 +16,37 @@
             $attendanceModel = new Attendance($pdo);
 
             $student = $studentModel->getStudentByRfid($rfid);
-
             if ($student) {
                 $studentId = $student['student_id'];
                 $date = date("Y-m-d");
                 $currentTime = date("H:i:s");
+                $currentDateTime = date("Y-m-d H:i:s");
+
+                $lastAttendance = $attendanceModel->getLastAttendanceRecord($studentId);
+
+                // Check if the last attendance was within the last minute
+                if ($lastAttendance) {
+                    $lastAttendanceTime = strtotime($lastAttendance['created_at']);
+                    $currentTimestamp = strtotime($currentDateTime);
+                    $timeDifference = $currentTimestamp - $lastAttendanceTime;
+
+                    if ($timeDifference < 60) { // Less than 60 seconds (1 minute)
+                        $response = [
+                            "success" => false,
+                            "message" => "Please wait 1 minute before checking in/out again.",
+                            "status" => "Waiting Period",
+                            "timeRemaining" => 60 - $timeDifference,
+                            "student" => [
+                                "student_id" => $student["student_id"],
+                                "full_name" => $student["student_firstname"] . " " . $student["student_lastname"],
+                                "department" => $student["course_id"],
+                                "profile_picture" => "../../uploads/" . (basename($student["profile_picture"]) ?? "default-image.jpg")
+                            ]
+                        ];
+                        echo json_encode($response);
+                        exit;
+                    }
+                }
 
                 $attendance = $attendanceModel->getTodayRecord($studentId, $date);
 
@@ -45,7 +71,9 @@
                         "student_id" => $student["student_id"],
                         "full_name" => $student["student_firstname"] . " " . $student["student_lastname"],
                         "department" => $student["course_id"],
-                        "profile_picture" => "../../uploads/" . (basename($student["profile_picture"]) ?? "default-image.jpg")
+                        "profile_picture" => "../../uploads/" . (basename($student["profile_picture"]) ?? "default-image.jpg"),
+                        "guardian_contact" => $student["guardian_contact"],
+                        "guardian_name" => $student["guardian_name"]
                     ],
                     "recent_students" => array_map(function($attendance) use ($studentModel) {
                         $recentStudent = $studentModel->getStudentById($attendance["student_id"]);
@@ -62,7 +90,20 @@
                     }, $attendanceModel->getRecentAttendance(3))
                 ];
             } else {
-                $response["message"] = "RFID not recognized. Student not found.";
+                $response = [
+                    "success" => false,
+                    "message" => "Invalid Student",
+                    "status" => "Invalid Student",
+                    "profile_picture" => "../../uploads/pp.png",
+                    "student" => [
+                        "student_id" => null,
+                        "full_name" => "N/A",
+                        "department" => "N/A",
+                        "profile_picture" => "../../uploads/pp.png",
+                        "guardian_contact" => "N/A",
+                        "guardian_name" => "N/A"
+                    ]
+                ];
             }
         }
     } catch (Exception $e) {

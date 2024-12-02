@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let recentStudents = [];
     let currentStudent = null;
-    let rfidBuffer = ''; // Temporary storage for RFID data
+    let rfidBuffer = '';
 
     function loadAttendanceData() {
-        fetch("../Views/components/get_attendance_data.php")
+        fetch("../Views/components/getAttendanceTable.php")
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

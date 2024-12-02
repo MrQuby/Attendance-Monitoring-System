@@ -4,13 +4,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let recentStudents = [];
     let currentStudent = null;
-    let rfidBuffer = ''; // Temporary storage for RFID data
+    let rfidBuffer = '';
+    let countdownInterval = null;
 
     function loadAttendanceTable() {
         fetch("../Views/components/getAttendanceTable.php")
             .then(response => response.text())
             .then(html => {
-                attendanceTableBody.innerHTML = html; // Update the table body
+                attendanceTableBody.innerHTML = html;
             })
             .catch(error => console.error("Error fetching attendance data:", error));
     }
@@ -38,6 +39,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Function to start the countdown when in waiting period
+    function startCountdown(timeRemaining, status) {
+        const statusLabel = document.getElementById("current-status");
+
+        if (timeRemaining > 0) {
+            countdownInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    statusLabel.textContent = status === "IN" ? "You can now check out." : "You can now check in.";
+                    statusLabel.className = status === "IN" ? "status-in" : "status-out";
+                    console.log("Countdown complete.");
+                } else {
+                    statusLabel.textContent = `Wait ${timeRemaining} seconds`;
+                    timeRemaining--;
+                    console.log(`Countdown at ${timeRemaining} seconds`);
+                }
+            }, 1000);
+        }
+    }
+
     function processRFID(rfid) {
         fetch("../Views/components/markAttendance.php", {
             method: "POST",
@@ -46,10 +67,26 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
+                if (!data.success && data.status === "Waiting Period") {
+                    document.getElementById("current-student-avatar").src = data.student.profile_picture;
+                    document.getElementById("current-student-name").textContent = data.student.full_name;
+                    document.getElementById("current-department").textContent = data.student.department;
+
+                    const statusLabel = document.getElementById("current-status");
+                    statusLabel.textContent = `Wait ${Math.ceil(data.timeRemaining)} seconds`;
+                    statusLabel.className = data.status === "IN" ? "status-in" : "status-out";
+
+                    startCountdown(Math.ceil(data.timeRemaining), data.status);
+
+                    return;
+                }
+
                 if (data.success) {
+                    sendSmsNotification(data.student.guardian_contact,
+                        `Good day! ${data.student.guardian_name}, your child ${data.student.full_name} has ${data.status === 'IN' ? 'entered' : 'exited'} the school at ${data.time}.`);
                     if (currentStudent && currentStudent.student_id !== data.student.student_id) {
                         if (recentStudents.length === 3) {
-                            recentStudents.pop(); // Limit recent students list to 3
+                            recentStudents.pop();
                         }
                         recentStudents.unshift(currentStudent);
                     }
@@ -76,10 +113,45 @@ document.addEventListener("DOMContentLoaded", function () {
                     updateRecentStudents();
                     loadAttendanceTable();
                 } else {
-                    alert(data.message || "Failed to log attendance.");
+                    document.getElementById("current-student-avatar").src = data.student.profile_picture;
+                    document.getElementById("current-student-name").textContent = "";
+                    document.getElementById("current-department").textContent = "";
+
+                    const statusLabel = document.getElementById("current-status");
+                    statusLabel.textContent = "Invalid Student";
+                    statusLabel.className = "status-out";
                 }
             })
-            .catch(error => console.error("Error processing RFID:", error));
+            .catch(error => { console.error("Error processing RFID:", error), console.log() });
+    }
+
+    // sms notification
+    function sendSmsNotification(phoneNumber, message) {
+        fetch("../Views/components/sendSMS.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                phone_number: phoneNumber,
+                message: message
+            })
+        })
+            .then(response => response.json())
+            .then(result => {
+                const response = result.data && result.data.responses && result.data.responses[0];
+
+                if (response && response.success) {
+                    console.log("SMS sent successfully! Message ID:", response.messageId);
+                } else {
+                    const errorMessage = response && response.message || "Unknown error from TextBee";
+                    if (response && !response.success) {
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Error in SMS notification:", err);
+            });
     }
 
     // Capture keystrokes to detect RFID input
@@ -92,5 +164,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    loadAttendanceTable(); // Initial load of the attendance table
+    loadAttendanceTable();
 });
