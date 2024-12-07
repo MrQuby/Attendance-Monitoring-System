@@ -49,7 +49,6 @@
     unset($_SESSION['delete_student_success']);
     unset($_SESSION['edit_student_success']);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -171,7 +170,19 @@
                     <h2>Student List</h2>
                         <div class="d-flex justify-content-between align-items-center mb-3">                       
                             <!-- Add Student Button -->
-                            <button type="button" class="btn btn-success" id="add-student-btn" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add Student</button>
+                            <div>
+                                <button type="button" class="btn btn-success me-2" id="add-student-btn" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add Student</button>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Bulk Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">Upload Students</a></li>
+                                        <li><a class="dropdown-item" href="../../app/Controllers/downloadStudents.php?type=template">Download Template</a></li>
+                                        <li><a class="dropdown-item" href="../../app/Controllers/downloadStudents.php?type=export">Export Students</a></li>
+                                    </ul>
+                                </div>
+                            </div>
                             <!-- Filter search form positioned to the right and aligned in a row -->
                             <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
                                 <input type="hidden" name="section" value="student-list">
@@ -346,6 +357,97 @@
     <?php include __DIR__ . '/../Views/layouts/logoutAnimation.php'; ?>
     <!-- Success Modals for Add, Edit, and Delete Actions -->
     <?php include __DIR__ . '/../Views/modals/successModals.php'; ?>
+    
+    <!-- Bulk Upload Modal -->
+    <div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkUploadModalLabel">Bulk Upload Students</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bulkUploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="fileUpload" class="form-label">Choose CSV or Excel File</label>
+                            <input type="file" class="form-control" id="fileUpload" name="file" accept=".csv,.xlsx,.xls" required>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-muted">File should contain the following columns:</p>
+                            <ul class="text-muted">
+                                <li>student_id (required)</li>
+                                <li>student_firstname (required)</li>
+                                <li>student_lastname (required)</li>
+                                <li>student_email</li>
+                                <li>student_birthdate</li>
+                                <li>student_phone</li>
+                                <li>student_address</li>
+                                <li>student_gender</li>
+                                <li>guardian_name</li>
+                                <li>guardian_contact</li>
+                                <li>student_level</li>
+                                <li>course_id</li>
+                                <li>student_rfid</li>
+                            </ul>
+                        </div>
+                        <div id="uploadStatus" class="alert d-none"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="uploadSubmit">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadSubmit').addEventListener('click', function() {
+            const form = document.getElementById('bulkUploadForm');
+            const fileInput = document.getElementById('fileUpload');
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            if (!fileInput.files[0]) {
+                statusDiv.textContent = 'Please select a file';
+                statusDiv.className = 'alert alert-danger';
+                return;
+            }
+
+            const formData = new FormData(form);
+            
+            statusDiv.textContent = 'Uploading...';
+            statusDiv.className = 'alert alert-info';
+            
+            fetch('../../app/Controllers/processUpload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.className = 'alert alert-success';
+                    let message = data.message;
+                    if (data.errors && data.errors.length > 0) {
+                        message += '\n\nWarnings:\n' + data.errors.join('\n');
+                    }
+                    statusDiv.textContent = message;
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.textContent = data.message;
+                    if (data.errors) {
+                        statusDiv.textContent += '\n' + data.errors.join('\n');
+                    }
+                }
+            })
+            .catch(error => {
+                statusDiv.className = 'alert alert-danger';
+                statusDiv.textContent = 'An error occurred during upload';
+            });
+        });
+    </script>
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>

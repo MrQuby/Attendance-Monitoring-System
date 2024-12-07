@@ -43,12 +43,23 @@ document.addEventListener("DOMContentLoaded", function () {
     function startCountdown(timeRemaining, status) {
         const statusLabel = document.getElementById("current-status");
 
+        // Clear any existing countdown
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
         if (timeRemaining > 0) {
+            // Set initial color based on waiting status
+            statusLabel.className = status === "Waiting Period Out" ? "status-out" : "status-in";
+            
             countdownInterval = setInterval(() => {
                 if (timeRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    statusLabel.textContent = status === "IN" ? "You can now check out." : "You can now check in.";
-                    statusLabel.className = status === "IN" ? "status-in" : "status-out";
+                    countdownInterval = null;
+                    statusLabel.textContent = status === "Waiting Period Out" ? "You can now check out." : "You can now check in.";
+                    statusLabel.className = status === "Waiting Period Out" ? "status-out" : "status-in";
+                    console.log(status);
                     console.log("Countdown complete.");
                 } else {
                     statusLabel.textContent = `Wait ${timeRemaining} seconds`;
@@ -60,6 +71,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function processRFID(rfid) {
+        // Clear any existing countdown first
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
         fetch("../Views/components/markAttendance.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -67,21 +84,24 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                if (!data.success && data.status === "Waiting Period") {
-                    document.getElementById("current-student-avatar").src = data.student.profile_picture;
-                    document.getElementById("current-student-name").textContent = data.student.full_name;
-                    document.getElementById("current-department").textContent = data.student.department;
+                console.log("Response from server:", data); // Debug log
 
-                    const statusLabel = document.getElementById("current-status");
+                // Always update the UI with current student info
+                document.getElementById("current-student-avatar").src = data.student.profile_picture;
+                document.getElementById("current-student-name").textContent = data.student.full_name;
+                document.getElementById("current-department").textContent = data.student.department;
+                const statusLabel = document.getElementById("current-status");
+
+                if (!data.success && (data.status === "Waiting Period In" || data.status === "Waiting Period Out")) {
+                    console.log("Waiting period status:", data.status); // Debug log
                     statusLabel.textContent = `Wait ${Math.ceil(data.timeRemaining)} seconds`;
-                    statusLabel.className = data.status === "IN" ? "status-in" : "status-out";
-
+                    statusLabel.className = data.status === "Waiting Period Out" ? "status-out" : "status-in";
                     startCountdown(Math.ceil(data.timeRemaining), data.status);
-
                     return;
                 }
 
                 if (data.success) {
+                    console.log("Successful scan status:", data.status); // Debug log
                     sendSmsNotification(data.student.guardian_contact,
                         `Good day! ${data.student.guardian_name}, your child ${data.student.full_name} has ${data.status === 'IN' ? 'entered' : 'exited'} the school at ${data.time}.`);
                     if (currentStudent && currentStudent.student_id !== data.student.student_id) {
@@ -102,27 +122,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         department: data.student.department
                     };
 
-                    document.getElementById("current-student-avatar").src = data.student.profile_picture;
-                    document.getElementById("current-student-name").textContent = data.student.full_name;
-                    document.getElementById("current-department").textContent = data.student.department;
-
-                    const statusLabel = document.getElementById("current-status");
                     statusLabel.textContent = data.status === "IN" ? "Checked In" : "Checked Out";
                     statusLabel.className = data.status === "IN" ? "status-in" : "status-out";
 
                     updateRecentStudents();
                     loadAttendanceTable();
                 } else {
-                    document.getElementById("current-student-avatar").src = data.student.profile_picture;
                     document.getElementById("current-student-name").textContent = "";
                     document.getElementById("current-department").textContent = "";
-
-                    const statusLabel = document.getElementById("current-status");
+                    console.log("Invalid student or error");
                     statusLabel.textContent = "Invalid Student";
                     statusLabel.className = "status-out";
                 }
             })
-            .catch(error => { console.error("Error processing RFID:", error), console.log() });
+            .catch(error => { 
+                console.error("Error processing RFID:", error);
+                const statusLabel = document.getElementById("current-status");
+                statusLabel.textContent = "Error processing card";
+                statusLabel.className = "status-out";
+            });
     }
 
     // sms notification

@@ -31,10 +31,14 @@
                     $timeDifference = $currentTimestamp - $lastAttendanceTime;
 
                     if ($timeDifference < 60) { // Less than 60 seconds (1 minute)
+                        // Check current status to determine if they're waiting to check in or out
+                        $todayRecord = $attendanceModel->getTodayRecord($studentId, $date);
+                        $waitingStatus = ($todayRecord && empty($todayRecord['time_out'])) ? "Waiting Period Out" : "Waiting Period In";
+                        
                         $response = [
                             "success" => false,
                             "message" => "Please wait 1 minute before checking in/out again.",
-                            "status" => "Waiting Period",
+                            "status" => $waitingStatus,
                             "timeRemaining" => 60 - $timeDifference,
                             "student" => [
                                 "student_id" => $student["student_id"],

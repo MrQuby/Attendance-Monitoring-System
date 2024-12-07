@@ -252,5 +252,98 @@
             $statement->execute();
             return $statement->fetchColumn() > 0;
         }
+
+        // Method to handle bulk upload of students
+        public function bulkUploadStudents($data) {
+            $this->pdo->beginTransaction();
+            try {
+                $successCount = 0;
+                $errors = [];
+                $defaultProfilePicture = '../../uploads/pp.png';
+
+                foreach ($data as $index => $row) {
+                    // Skip empty rows
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
+
+                    // Validate required fields
+                    if (empty($row['student_id']) || empty($row['student_firstname']) || empty($row['student_lastname'])) {
+                        $errors[] = "Row " . ($index + 2) . ": Missing required fields (Student ID, First Name, or Last Name)";
+                        continue;
+                    }
+
+                    // Check if student ID already exists
+                    $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM students WHERE student_id = ? AND deleted = FALSE");
+                    $stmt->execute([$row['student_id']]);
+                    if ($stmt->fetchColumn() > 0) {
+                        $errors[] = "Row " . ($index + 2) . ": Student ID {$row['student_id']} already exists";
+                        continue;
+                    }
+
+                    // Prepare the SQL query
+                    $query = "INSERT INTO students (
+                        student_id, student_firstname, student_lastname, student_email,
+                        student_birthdate, student_phone, student_address, student_gender,
+                        guardian_name, guardian_contact, student_level, course_id, student_rfid,
+                        profile_picture
+                    ) VALUES (
+                        :student_id, :firstname, :lastname, :email,
+                        :birthdate, :phone, :address, :gender,
+                        :guardian_name, :guardian_contact, :level, :course_id, :rfid,
+                        :profile_picture
+                    )";
+
+                    $stmt = $this->pdo->prepare($query);
+
+                    // Execute with proper parameter binding
+                    try {
+                        $stmt->execute([
+                            ':student_id' => $row['student_id'],
+                            ':firstname' => $row['student_firstname'],
+                            ':lastname' => $row['student_lastname'],
+                            ':email' => $row['student_email'] ?? null,
+                            ':birthdate' => $row['student_birthdate'] ?? null,
+                            ':phone' => $row['student_phone'] ?? null,
+                            ':address' => $row['student_address'] ?? null,
+                            ':gender' => $row['student_gender'] ?? null,
+                            ':guardian_name' => $row['guardian_name'] ?? null,
+                            ':guardian_contact' => $row['guardian_contact'] ?? null,
+                            ':level' => $row['student_level'] ?? null,
+                            ':course_id' => $row['course_id'] ?? null,
+                            ':rfid' => $row['student_rfid'] ?? null,
+                            ':profile_picture' => $defaultProfilePicture
+                        ]);
+                        $successCount++;
+                    } catch (PDOException $e) {
+                        $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                        continue;
+                    }
+                }
+
+                if ($successCount > 0) {
+                    $this->pdo->commit();
+                    return [
+                        'success' => true,
+                        'message' => "$successCount students successfully uploaded",
+                        'errors' => $errors
+                    ];
+                } else {
+                    $this->pdo->rollBack();
+                    return [
+                        'success' => false,
+                        'message' => "No students were uploaded",
+                        'errors' => $errors
+                    ];
+                }
+            } catch (Exception $e) {
+                $this->pdo->rollBack();
+                return [
+                    'success' => false,
+                    'message' => "An error occurred during upload",
+                    'errors' => [$e->getMessage()]
+                ];
+            }
+        }
     }
 ?>
