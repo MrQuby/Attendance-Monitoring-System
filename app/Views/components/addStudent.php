@@ -35,10 +35,19 @@
         }
     }
 
-    $studentModel->addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath, $studentRfid);
+    // Try to add the student
+    $result = $studentModel->addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath, $studentRfid);
 
-    $_SESSION['add_student_success'] = true;
-    
-    header('Location: ../../Controllers/adminDashboard.php?section=student-list');
+    if ($result['success']) {
+        $_SESSION['add_student_success'] = true;
+        header('Location: ../../Controllers/adminDashboard.php?section=student-list');
+    } else {
+        // Store the error and form data in session
+        $_SESSION['add_student_error'] = $result['error'];
+        $_SESSION['add_student_form_data'] = $_POST;
+        
+        // Redirect back with error flag
+        header('Location: ../../Controllers/adminDashboard.php?section=student-list&show_add_modal=1');
+    }
     exit;
 ?>

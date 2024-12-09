@@ -9,6 +9,6 @@ document.getElementById("confirmLogout").addEventListener("click", function (eve
     loadingSpinner.classList.remove("d-none");
 
     setTimeout(function () {
-        window.location.href = "logout.php";
-    }, 2000);
+        window.location.href = "../../app/Controllers/logout.php";
+    }, 1000);
 });

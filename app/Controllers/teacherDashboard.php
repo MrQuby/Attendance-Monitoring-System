@@ -1,11 +1,10 @@
 <?php
     session_start();
-
-    $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
     
-    require_once(__DIR__ . '/../Models/SessionManager.php'); 
+    require_once(__DIR__ . '/../Models/SessionManager.php');
     require_once(__DIR__ . '/../config/database.php');
     require_once(__DIR__ . '/../Models/Student.php');
+    require_once(__DIR__ . '/../Models/Course.php');
 
     SessionManager::startSession();
     if (!SessionManager::isTeacherLoggedIn()) {
@@ -13,8 +12,20 @@
         exit;
     }
 
-    $studentModel = new Student($pdo);
+    // Set session data for logging
+    $_SESSION['user_type'] = 'teacher';
+    $_SESSION['teacher'] = [
+        'teacher_id' => $_SESSION['teacher_id'],
+        'teacher_firstname' => $_SESSION['teacher_firstname'],
+        'teacher_lastname' => $_SESSION['teacher_lastname']
+    ];
 
+    // Initialize Models
+    $studentModel = new Student($pdo);
+    $courseModel = new Course($pdo);
+
+    $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
+    
     $studentId = isset($_GET['student_id']) ? $_GET['student_id'] : null;
     $filterStudentId = isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : null;
     $filterDate = isset($_GET['filter_date']) ? $_GET['filter_date'] : null;
@@ -29,7 +40,6 @@
     ? ($distinctCheckInTodayCount / $totalStudents) * 100 
     : 0;
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,10 +61,10 @@
                     <h1>SCC-ITECH<br>SOCIETY</h1>
                 </div>
                 <ul class="sidebar-menu">
-                    <li><a href="teacherDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="bx bxs-grid-alt"></i> Dashboard</a></li>
-                    <li><a href="teacherDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="bx bx-group"></i> Student</a></li>
+                    <li><a href="teacherDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="teacherDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="fas fa-user-graduate"></i> Student</a></li>
                     <li><a href="teacherDashboard.php?section=attendance" class="sidebar-link <?php echo ($section === 'attendance') ? 'active' : ''; ?>"><i class="bx bx-calendar"></i> Attendance</a></li>
-                    <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bx bx-log-out"></i>Logout</a></li>
+                    <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>
             <!-- User Profile -->
@@ -139,18 +149,18 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2>Student List</h2>
                             <!-- Filter search -->
-                            <form method="GET" action="teacherDashboard.php" class="d-flex align-items-center">
-                                <input type="hidden" name="section" value="student-list">
+                            <div class="d-flex align-items-center">
                                 <!-- Search Input -->
                                 <div class="form-group mb-0 me-2">
-                                    <label for="student_id" class="sr-only">Search by Student ID</label>
-                                    <input type="text" name="student_id" id="student_id" class="form-control" placeholder="Student ID" value="<?php echo isset($_GET['student_id']) ? $_GET['student_id'] : ''; ?>">
+                                    <label for="student_search" class="sr-only">Search Students</label>
+                                    <div class="search-input-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="student_search" class="form-control" placeholder="Search Students">
+                                    </div>
                                 </div>
-                                <!-- Search Button -->
-                                <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
                                 <a href="teacherDashboard.php?section=student-list" class="btn btn-danger">Reset</a>
-                            </form>
+                            </div>
                         </div>
                         <!-- Student List Table -->                   
                         <div class = "table-container">
@@ -218,23 +228,23 @@
                     <div class="scrollable-table-container">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2>Attendance List</h2>
-                            <form method="GET" action="teacherDashboard.php" class="d-flex align-items-center">
-                                <input type="hidden" name="section" value="attendance">
+                            <div class="d-flex align-items-center">
                                 <!-- Student ID Filter -->
                                 <div class="form-group mb-0 me-2">
-                                    <label for="filter_student_id" class="sr-only">Student ID</label>
-                                    <input type="text" name="filter_student_id" id="filter_student_id" class="form-control" placeholder="Student ID" value="<?php echo isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : ''; ?>">
+                                    <label for="attendance_search" class="sr-only">Search Attendance</label>
+                                    <div class="search-input-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="attendance_search" class="form-control" placeholder="Search Students">
+                                    </div>
                                 </div>
                                 <!-- Date Filter -->
                                 <div class="form-group mb-0 me-2">
                                     <label for="filter_date" class="sr-only">Date</label>
-                                    <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo isset($_GET['filter_date']) ? $_GET['filter_date'] : ''; ?>">
+                                    <input type="date" id="filter_date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
                                 </div>
-                                <!-- Search Button -->
-                                <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
                                 <a href="teacherDashboard.php?section=attendance" class="btn btn-danger">Reset</a>
-                            </form>
+                            </div>
                         </div>
                         <div class="table-container">
                             <table class="table table-striped table-hover">

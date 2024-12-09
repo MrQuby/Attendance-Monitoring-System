@@ -41,9 +41,51 @@
 
         // Method to add a student with manually inputted student_id and student_rfid
         public function addStudent($studentId, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath, $studentRfid) {
+            // Format RFID to ensure it has 10 digits with leading zeros
+            $formattedRfid = str_pad($studentRfid, 10, '0', STR_PAD_LEFT);
+
+            // Check if student ID exists
+            $stmt = $this->pdo->prepare("SELECT deleted FROM students WHERE student_id = ?");
+            $stmt->execute([$studentId]);
+            $existingStudent = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingStudent) {
+                if ($existingStudent['deleted']) {
+                    return [
+                        'success' => false,
+                        'error' => 'Student ID already exists but is deleted. Please restore the student instead.'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'error' => 'Student ID already exists'
+                    ];
+                }
+            }
+
+            // Check if RFID exists
+            $stmt = $this->pdo->prepare("SELECT deleted FROM students WHERE student_rfid = ?");
+            $stmt->execute([$formattedRfid]);
+            $existingRfid = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingRfid) {
+                if ($existingRfid['deleted']) {
+                    return [
+                        'success' => false,
+                        'error' => 'RFID already exists but is deleted. Please restore the student instead.'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'error' => 'RFID already exists'
+                    ];
+                }
+            }
+
+            // If no duplicates found, proceed with insertion
             $query = "INSERT INTO students (student_id, student_firstname, student_lastname, student_email, student_birthdate, 
-                                            student_phone, student_address, student_gender, guardian_name, guardian_contact, 
-                                            student_level, course_id, profile_picture, student_rfid) 
+                                        student_phone, student_address, student_gender, guardian_name, guardian_contact, 
+                                        student_level, course_id, profile_picture, student_rfid) 
                     VALUES (:studentId, :firstName, :lastName, :email, :birthdate, :phone, :address, :gender, :guardianName, 
                             :guardianContact, :level, :courseId, :profilePicturePath, :studentRfid)";
                     
@@ -62,12 +104,13 @@
             $statement->bindParam(':level', $level);
             $statement->bindParam(':courseId', $courseId);
             $statement->bindParam(':profilePicturePath', $profilePicturePath);
-            $statement->bindParam(':studentRfid', $studentRfid);
+            $statement->bindParam(':studentRfid', $formattedRfid);
 
             $statement->execute();
+            return ['success' => true];
         }
 
-        // Get a student by ID
+        // Method to get a student by ID
         public function getStudentById($studentId) {
             $query = "SELECT student_id, student_firstname, student_lastname, student_email, student_birthdate, 
                             student_phone, student_address, student_gender, guardian_name, guardian_contact, 
@@ -82,42 +125,78 @@
 
         // Method to update a student's details, including RFID
         public function updateStudent($studentId, $studentRfid, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath = null) {
+            // Format RFID to ensure it has 10 digits with leading zeros
+            $formattedRfid = str_pad($studentRfid, 10, '0', STR_PAD_LEFT);
+
+            // Check if RFID exists for a different student
+            if ($this->checkRFIDExists($formattedRfid, $studentId)) {
+                return [
+                    'success' => false,
+                    'error' => 'RFID already exists for another student'
+                ];
+            }
+
             $query = "UPDATE students 
                     SET student_firstname = :firstName, student_lastname = :lastName, student_email = :email, 
                         student_birthdate = :birthdate, student_phone = :phone, student_address = :address, 
                         student_gender = :gender, guardian_name = :guardianName, guardian_contact = :guardianContact, 
                         student_rfid = :studentRfid, student_level = :level, course_id = :courseId";
             
-            // Include profile picture update only if a new file path is provided
             if ($profilePicturePath !== null) {
                 $query .= ", profile_picture = :profilePicture";
             }
-
+            
             $query .= " WHERE student_id = :studentId";
             
             $statement = $this->pdo->prepare($query);
-
-            $statement->bindParam(':studentId', $studentId);
-            $statement->bindParam(':studentRfid', $studentRfid);
-            $statement->bindParam(':firstName', $firstName);
-            $statement->bindParam(':lastName', $lastName);
-            $statement->bindParam(':email', $email);
-            $statement->bindParam(':birthdate', $birthdate);
-            $statement->bindParam(':phone', $phone);
-            $statement->bindParam(':address', $address);
-            $statement->bindParam(':gender', $gender);
-            $statement->bindParam(':guardianName', $guardianName);
-            $statement->bindParam(':guardianContact', $guardianContact);
-            $statement->bindParam(':level', $level);
-            $statement->bindParam(':courseId', $courseId);
-
-            // Bind profile picture if provided
+            
+            $params = [
+                ':studentId' => $studentId,
+                ':studentRfid' => $formattedRfid,
+                ':firstName' => $firstName,
+                ':lastName' => $lastName,
+                ':email' => $email,
+                ':birthdate' => $birthdate,
+                ':phone' => $phone,
+                ':address' => $address,
+                ':gender' => $gender,
+                ':guardianName' => $guardianName,
+                ':guardianContact' => $guardianContact,
+                ':level' => $level,
+                ':courseId' => $courseId
+            ];
+            
             if ($profilePicturePath !== null) {
-                $statement->bindParam(':profilePicture', $profilePicturePath);
+                $params[':profilePicture'] = $profilePicturePath;
             }
+            
+            $statement->execute($params);
+            return ['success' => true];
+        }
 
-            $statement->execute();
-        }       
+        public function checkRFIDExists($rfid, $excludeStudentId = null) {
+            try {
+                // Format RFID to ensure 10 digits with leading zeros
+                $rfid = str_pad($rfid, 10, '0', STR_PAD_LEFT);
+                
+                $sql = "SELECT COUNT(*) FROM students WHERE student_rfid = :rfid AND deleted = FALSE";
+                $params = [':rfid' => $rfid];
+                
+                // If we're updating a student, exclude their current ID from the check
+                if ($excludeStudentId !== null) {
+                    $sql .= " AND student_id != :student_id";
+                    $params[':student_id'] = $excludeStudentId;
+                }
+                
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                
+                return $stmt->fetchColumn() > 0;
+            } catch (PDOException $e) {
+                error_log("Error checking RFID existence: " . $e->getMessage());
+                return false;
+            }
+        }
 
         // Delete a student by ID
         public function deleteStudent($studentId) {
@@ -269,51 +348,111 @@
 
                     // Validate required fields
                     if (empty($row['student_id']) || empty($row['student_firstname']) || empty($row['student_lastname'])) {
-                        $errors[] = "Row " . ($index + 2) . ": Missing required fields (Student ID, First Name, or Last Name)";
+                        $errors[] = "Row " . ($index + 1) . ": Missing required fields (Student ID, First Name, or Last Name)";
                         continue;
                     }
 
-                    // Check if student ID already exists
-                    $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM students WHERE student_id = ? AND deleted = FALSE");
+                    // Format birthdate to Y-m-d format if it exists
+                    if (!empty($row['student_birthdate'])) {
+                        // Try to parse the date
+                        $birthdate = date('Y-m-d', strtotime($row['student_birthdate']));
+                        if ($birthdate === '1970-01-01' || $birthdate === false) {
+                            $errors[] = "Row " . ($index + 1) . ": Invalid birthdate format. Please use YYYY-MM-DD format";
+                            continue;
+                        }
+                        $row['student_birthdate'] = $birthdate;
+                    }
+
+                    // Check if student ID exists
+                    $stmt = $this->pdo->prepare("SELECT deleted FROM students WHERE student_id = ?");
                     $stmt->execute([$row['student_id']]);
-                    if ($stmt->fetchColumn() > 0) {
-                        $errors[] = "Row " . ($index + 2) . ": Student ID {$row['student_id']} already exists";
-                        continue;
-                    }
+                    $existingStudent = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Prepare the SQL query
-                    $query = "INSERT INTO students (
-                        student_id, student_firstname, student_lastname, student_email,
-                        student_birthdate, student_phone, student_address, student_gender,
-                        guardian_name, guardian_contact, student_level, course_id, student_rfid,
-                        profile_picture
-                    ) VALUES (
-                        :student_id, :firstname, :lastname, :email,
-                        :birthdate, :phone, :address, :gender,
-                        :guardian_name, :guardian_contact, :level, :course_id, :rfid,
-                        :profile_picture
-                    )";
+                    $query = $existingStudent && $existingStudent['deleted']
+                        ? "UPDATE students SET 
+                            student_firstname = :firstname,
+                            student_lastname = :lastname,
+                            student_email = :email,
+                            student_birthdate = :birthdate,
+                            student_phone = :phone,
+                            student_address = :address,
+                            student_gender = :gender,
+                            guardian_name = :guardian_name,
+                            guardian_contact = :guardian_contact,
+                            student_level = :level,
+                            course_id = :course_id,
+                            student_rfid = :rfid,
+                            profile_picture = :profile_picture,
+                            deleted = FALSE,
+                            deleted_at = NULL
+                            WHERE student_id = :student_id"
+                        : "INSERT INTO students (
+                            student_id, student_firstname, student_lastname, student_email,
+                            student_birthdate, student_phone, student_address, student_gender,
+                            guardian_name, guardian_contact, student_level, course_id,
+                            student_rfid, profile_picture
+                        ) VALUES (
+                            :student_id, :firstname, :lastname, :email,
+                            :birthdate, :phone, :address, :gender,
+                            :guardian_name, :guardian_contact, :level, :course_id,
+                            :rfid, :profile_picture
+                        )";
+
+                    // Check if RFID already exists (if provided)
+                    if (!empty($row['student_rfid'])) {
+                        // Format the RFID to ensure it has 10 digits with leading zeros
+                        $formattedRfid = str_pad($row['student_rfid'], 10, '0', STR_PAD_LEFT);
+                        
+                        // Update the RFID in the row data to include leading zeros
+                        $row['student_rfid'] = $formattedRfid;
+                        
+                        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM students WHERE student_rfid = ? AND deleted = FALSE");
+                        $stmt->execute([$formattedRfid]);
+                        if ($stmt->fetchColumn() > 0) {
+                            $errors[] = "Row " . ($index + 1) . ": RFID {$formattedRfid} already exists";
+                            continue;
+                        }
+                    }
 
                     $stmt = $this->pdo->prepare($query);
 
                     // Execute with proper parameter binding
                     try {
-                        $stmt->execute([
-                            ':student_id' => $row['student_id'],
-                            ':firstname' => $row['student_firstname'],
-                            ':lastname' => $row['student_lastname'],
-                            ':email' => $row['student_email'] ?? null,
-                            ':birthdate' => $row['student_birthdate'] ?? null,
-                            ':phone' => $row['student_phone'] ?? null,
-                            ':address' => $row['student_address'] ?? null,
-                            ':gender' => $row['student_gender'] ?? null,
-                            ':guardian_name' => $row['guardian_name'] ?? null,
-                            ':guardian_contact' => $row['guardian_contact'] ?? null,
-                            ':level' => $row['student_level'] ?? null,
-                            ':course_id' => $row['course_id'] ?? null,
-                            ':rfid' => $row['student_rfid'] ?? null,
-                            ':profile_picture' => $defaultProfilePicture
-                        ]);
+                        if ($existingStudent && $existingStudent['deleted']) {
+                            $stmt->execute([
+                                ':student_id' => $row['student_id'],
+                                ':firstname' => $row['student_firstname'],
+                                ':lastname' => $row['student_lastname'],
+                                ':email' => $row['student_email'] ?? null,
+                                ':birthdate' => $row['student_birthdate'] ?? null,
+                                ':phone' => $row['student_phone'] ?? null,
+                                ':address' => $row['student_address'] ?? null,
+                                ':gender' => $row['student_gender'] ?? null,
+                                ':guardian_name' => $row['guardian_name'] ?? null,
+                                ':guardian_contact' => $row['guardian_contact'] ?? null,
+                                ':level' => $row['student_level'] ?? null,
+                                ':course_id' => $row['course_id'] ?? null,
+                                ':rfid' => $row['student_rfid'] ?? null,
+                                ':profile_picture' => $defaultProfilePicture
+                            ]);
+                        } else {
+                            $stmt->execute([
+                                ':student_id' => $row['student_id'],
+                                ':firstname' => $row['student_firstname'],
+                                ':lastname' => $row['student_lastname'],
+                                ':email' => $row['student_email'] ?? null,
+                                ':birthdate' => $row['student_birthdate'] ?? null,
+                                ':phone' => $row['student_phone'] ?? null,
+                                ':address' => $row['student_address'] ?? null,
+                                ':gender' => $row['student_gender'] ?? null,
+                                ':guardian_name' => $row['guardian_name'] ?? null,
+                                ':guardian_contact' => $row['guardian_contact'] ?? null,
+                                ':level' => $row['student_level'] ?? null,
+                                ':course_id' => $row['course_id'] ?? null,
+                                ':rfid' => $row['student_rfid'] ?? null,
+                                ':profile_picture' => $defaultProfilePicture
+                            ]);
+                        }
                         $successCount++;
                     } catch (PDOException $e) {
                         $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();

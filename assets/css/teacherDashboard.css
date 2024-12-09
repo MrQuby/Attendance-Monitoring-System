@@ -67,6 +67,8 @@ h2 {
     font-size: 19px;
     margin-right: 12px;
     color: inherit;
+    width: 25px;
+    text-align: center;
 }
 
 .sidebar-link:hover {
@@ -361,8 +363,45 @@ table td {
     background: #d73925 !important;
 }
 
+/* Search input styling */
+.search-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-container i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.search-input-container input {
+    padding-left: 35px;
+}
+
 .bg-yellow .small-box-footer {
     background: #da8c10 !important;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
 }
 
 /* Loading animation */

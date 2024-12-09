@@ -1,7 +1,8 @@
 <?php
-    // TextBee API URL and API Key
-    $url = "https://api.textbee.dev/api/v1/gateway/devices/674a0e35da6093cc29102247/send-sms";
+    // TextBee API Configuration
+    $deviceId = "674a0e35da6093cc29102247";
     $apiKey = "7454fece-8d3e-48f3-84e7-1df9656999de";
+    $url = "https://api.textbee.dev/api/v1/gateway/devices/" . $deviceId . "/send-sms";
 
     $data = json_decode(file_get_contents('php://input'), true);
     $phoneNumber = $data['phone_number'] ?? '';

@@ -1,28 +1,221 @@
 // Handle Add Student Modal
 document.addEventListener("DOMContentLoaded", function () {
-    const addStudentBtn = document.getElementById('add-student-btn');
+    const addStudentModal = document.getElementById('addStudentModal');
+    const addStudentForm = document.getElementById('add-student-form');
 
-    if (addStudentBtn) {
-        addStudentBtn.addEventListener('click', function () {
-            document.getElementById('add-student-form').setAttribute('action', '../../app/Views/components/addStudent.php');
+    if (addStudentModal) {
+        const modal = new bootstrap.Modal(addStudentModal);
 
-            document.getElementById('student-id').value = '';
-            document.getElementById('student-rfid').value = '';
-            document.getElementById('first-name').value = '';
-            document.getElementById('last-name').value = '';
-            document.getElementById('student-email').value = '';
-            document.getElementById('student-birthdate').value = '';
-            document.getElementById('student-phone').value = '';
-            document.getElementById('student-address').value = '';
-            document.getElementById('student-gender').value = '';
-            document.getElementById('guardian-name').value = '';
-            document.getElementById('guardian-contact').value = '';
-            document.getElementById('level').value = '';
-            document.getElementById('course').value = '';
+        addStudentModal.addEventListener('hide.bs.modal', function () {
+            if (addStudentForm) {
+                addStudentForm.reset();
+            }
+            const errorDiv = addStudentModal.querySelector('.alert-danger');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        });
+
+        if (addStudentModal.querySelector('.alert-danger')) {
+            modal.show();
+        }
+    }
+
+    // Handle real-time student search
+    const searchInput = document.getElementById('student_search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const studentTable = document.querySelector('.student-list table tbody');
+            const rows = studentTable.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                // Skip if it's the "No students found" row
+                if (row.cells.length === 1 && row.cells[0].hasAttribute('colspan')) {
+                    continue;
+                }
+
+                const id = row.cells[0]?.textContent.toLowerCase() || '';
+                const name = row.cells[1]?.querySelector('span')?.textContent.toLowerCase() || '';
+                const email = row.cells[2]?.textContent.toLowerCase() || '';
+                const yearLevel = row.cells[3]?.textContent.toLowerCase() || '';
+                const course = row.cells[4]?.textContent.toLowerCase() || '';
+
+                if (id.includes(searchTerm) || 
+                    name.includes(searchTerm) || 
+                    email.includes(searchTerm) || 
+                    yearLevel.includes(searchTerm) ||
+                    course.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            // Show "No results found" message if no matches
+            const visibleRows = Array.from(rows).filter(row => 
+                row.style.display !== 'none' && 
+                !(row.cells.length === 1 && row.cells[0].hasAttribute('colspan'))
+            );
+
+            const noResultsRow = studentTable.querySelector('.no-results');
+            if (visibleRows.length === 0) {
+                if (!noResultsRow) {
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'no-results';
+                    newRow.innerHTML = '<td colspan="6" class="text-center" style="padding: 20px 0;">No matching students found.</td>';
+                    studentTable.appendChild(newRow);
+                }
+            } else if (noResultsRow) {
+                noResultsRow.remove();
+            }
         });
     }
-});
 
+    // Real-time search for teachers
+    document.getElementById('teacher_search')?.addEventListener('input', function(e) {
+        const searchValue = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.teacher-list tbody tr');
+        let hasVisibleRows = false;
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchValue)) {
+                row.style.display = '';
+                hasVisibleRows = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show "No teachers found" message if no matching results
+        const noTeachersRow = document.querySelector('.teacher-list .no-teachers-message');
+        if (!hasVisibleRows) {
+            if (!noTeachersRow) {
+                const tbody = document.querySelector('.teacher-list tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-teachers-message';
+                newRow.innerHTML = '<td colspan="6" class="text-center" style="padding: 20px 0;">No teachers found.</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noTeachersRow.style.display = '';
+            }
+        } else if (noTeachersRow) {
+            noTeachersRow.style.display = 'none';
+        }
+    });
+
+    // Real-time search for attendance
+    document.getElementById('attendance_search')?.addEventListener('input', function(e) {
+        const searchValue = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.attendance tbody tr');
+        let hasVisibleRows = false;
+
+        tableRows.forEach(row => {
+            const id = row.cells[0]?.textContent.toLowerCase() || '';
+            const name = row.cells[1]?.querySelector('span')?.textContent.toLowerCase() || '';
+            const yearLevel = row.cells[2]?.textContent.toLowerCase() || '';
+            const course = row.cells[3]?.textContent.toLowerCase() || '';
+
+            if (id.includes(searchValue) || 
+                name.includes(searchValue) || 
+                yearLevel.includes(searchValue) || 
+                course.includes(searchValue)) {
+                row.style.display = '';
+                hasVisibleRows = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show "No attendance records found" message if no matching results
+        const noRecordsRow = document.querySelector('.attendance .no-records-message');
+        if (!hasVisibleRows) {
+            if (!noRecordsRow) {
+                const tbody = document.querySelector('.attendance tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-records-message';
+                newRow.innerHTML = '<td colspan="7" class="text-center" style="padding: 20px 0;">No attendance records found.</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noRecordsRow.style.display = '';
+            }
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = 'none';
+        }
+    });
+
+    // Date filter for attendance
+    document.getElementById('filter_date')?.addEventListener('change', function(e) {
+        const dateValue = e.target.value;
+        const tableRows = document.querySelectorAll('.attendance tbody tr');
+        let hasVisibleRows = false;
+
+        tableRows.forEach(row => {
+            const date = row.cells[4]?.textContent.trim().split(' ')[0] || ''; // Get just the date part
+            if (date === dateValue) {
+                row.style.display = '';
+                hasVisibleRows = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show "No attendance records found" message if no matching results
+        const noRecordsRow = document.querySelector('.attendance .no-records-message');
+        if (!hasVisibleRows) {
+            if (!noRecordsRow) {
+                const tbody = document.querySelector('.attendance tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-records-message';
+                newRow.innerHTML = '<td colspan="7" class="text-center" style="padding: 20px 0;">No attendance records found for selected date.</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noRecordsRow.style.display = '';
+            }
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = 'none';
+        }
+    });
+
+    // Function to filter logs
+    function filterLogs() {
+        const userType = document.getElementById('logTypeFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        fetch('../api/getLogs.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userType: userType,
+                startDate: startDate,
+                endDate: endDate
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const logsTableBody = document.getElementById('logsTableBody');
+            logsTableBody.innerHTML = '';
+
+            data.forEach(log => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${log.user_id}</td>
+                    <td>${log.user_type.charAt(0).toUpperCase() + log.user_type.slice(1)}</td>
+                    <td>${log.action.charAt(0).toUpperCase() + log.action.slice(1)}</td>
+                    <td>${log.ip_address}</td>
+                    <td>${log.browser_info}</td>
+                    <td>${log.timestamp}</td>
+                `;
+                logsTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+});
 
 // Handle Edit Student Modal
 document.querySelectorAll('.edit-student-btn').forEach(button => {
@@ -52,6 +245,9 @@ document.querySelectorAll('.edit-student-btn').forEach(button => {
                     document.getElementById('edit-profile-picture-display').src = student.profile_picture
                         ? `/${student.profile_picture}`
                         : '/uploads/pp.png';
+
+                    const editModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
+                    editModal.show();
                 } else {
                     console.error('Error fetching student data:', data.message);
                 }
@@ -60,6 +256,55 @@ document.querySelectorAll('.edit-student-btn').forEach(button => {
     });
 });
 
+// Handle edit student form submission
+document.getElementById('edit-student-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/app/Views/components/editStudent.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const errorDiv = document.querySelector('#edit-student-form .alert-danger');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+
+        if (!data.success) {
+            // Show error message in modal
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.textContent = data.error;
+            document.querySelector('#edit-student-form').insertBefore(alertDiv, document.querySelector('#edit-student-form').firstChild);
+        } else {
+            // Success - close modal and reload page
+            const editModal = bootstrap.Modal.getInstance(document.getElementById('editStudentModal'));
+            editModal.hide();
+            document.querySelector('.modal-backdrop').remove();
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+// Handle modal close
+document.getElementById('editStudentModal').addEventListener('hidden.bs.modal', function () {
+    // Remove modal backdrop
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+        backdrop.remove();
+    }
+    // Remove any error messages
+    const errorDiv = document.querySelector('#edit-student-form .alert-danger');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+});
 
 // Preview function for newly selected profile picture
 function previewEditProfileImage(event) {

@@ -111,5 +111,112 @@
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total_teachers'];
         }
+
+        public function findByEmail($email) {
+            $stmt = $this->pdo->prepare("SELECT * FROM teachers WHERE teacher_email = ?");
+            $stmt->execute([$email]);
+            return $stmt->fetch();
+        }
+        
+        public function storeResetToken($email, $token, $expiry) {
+            try {
+                // First verify the teacher exists
+                $verifyQuery = "SELECT teacher_id, teacher_email FROM teachers WHERE teacher_email = ?";
+                $verifyStmt = $this->pdo->prepare($verifyQuery);
+                $verifyStmt->execute([$email]);
+                $teacher = $verifyStmt->fetch(PDO::FETCH_ASSOC);
+                
+                error_log("STORE TOKEN - Teacher verification: " . json_encode([
+                    'email' => $email,
+                    'teacher_found' => !empty($teacher),
+                    'teacher_data' => $teacher
+                ]));
+                
+                if (!$teacher) {
+                    error_log("Teacher not found for email: " . $email);
+                    return false;
+                }
+                
+                // Store the token
+                $query = "UPDATE teachers SET reset_token = ?, reset_token_expires = ? WHERE teacher_email = ?";
+                $stmt = $this->pdo->prepare($query);
+                $success = $stmt->execute([$token, $expiry, $email]);
+                
+                error_log("STORE TOKEN - Update result: " . json_encode([
+                    'success' => $success,
+                    'token' => $token,
+                    'expiry' => $expiry,
+                    'rows_affected' => $stmt->rowCount()
+                ]));
+                
+                // Verify the token was stored
+                if ($success) {
+                    $verifyStoreQuery = "SELECT reset_token, reset_token_expires FROM teachers WHERE teacher_email = ?";
+                    $verifyStoreStmt = $this->pdo->prepare($verifyStoreQuery);
+                    $verifyStoreStmt->execute([$email]);
+                    $storedData = $verifyStoreStmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    error_log("STORE TOKEN - Verification: " . json_encode([
+                        'stored_token' => $storedData['reset_token'],
+                        'stored_expiry' => $storedData['reset_token_expires'],
+                        'matches_original' => $storedData['reset_token'] === $token
+                    ]));
+                }
+                
+                return $success;
+            } catch (PDOException $e) {
+                error_log("Error storing reset token: " . $e->getMessage());
+                return false;
+            }
+        }
+        
+        public function findByResetToken($token) {
+            try {
+                // First, dump ALL teachers with their tokens
+                $allTeachers = $this->pdo->query("SELECT teacher_id, teacher_email, reset_token, reset_token_expires FROM teachers")->fetchAll(PDO::FETCH_ASSOC);
+                error_log("ALL TEACHERS IN DATABASE: " . json_encode($allTeachers));
+                
+                // Now check for the specific token
+                $query = "SELECT * FROM teachers WHERE reset_token = ?";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([$token]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                error_log("EXACT TOKEN SEARCH: " . json_encode([
+                    'searching_for' => $token,
+                    'found_teacher' => $result ? 'yes' : 'no',
+                    'found_data' => $result
+                ]));
+                
+                return $result;
+            } catch (PDOException $e) {
+                error_log("Database error: " . $e->getMessage());
+                return false;
+            }
+        }
+        
+        public function updatePassword($teacherId, $hashedPassword) {
+            try {
+                $query = "UPDATE teachers SET teacher_password = ? WHERE teacher_id = ?";
+                $stmt = $this->pdo->prepare($query);
+                $result = $stmt->execute([$hashedPassword, $teacherId]);
+                
+                error_log(json_encode([
+                    'teacher_id' => $teacherId,
+                    'update_success' => $result,
+                    'rows_affected' => $stmt->rowCount()
+                ]));
+                
+                return $result;
+            } catch (PDOException $e) {
+                error_log("Database error in updatePassword: " . $e->getMessage());
+                return false;
+            }
+        }
+        
+        public function clearResetToken($teacherId) {
+            $stmt = $this->pdo->prepare("UPDATE teachers SET reset_token = NULL, reset_token_expires = NULL WHERE teacher_id = ?");
+            return $stmt->execute([$teacherId]);
+        }
     }
 ?>

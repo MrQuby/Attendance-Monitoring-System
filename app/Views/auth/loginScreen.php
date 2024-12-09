@@ -22,7 +22,6 @@
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,11 +77,10 @@
                 </div>
                 <div class="form-footer">
                     <div class="remember-me">
-                        <input type="checkbox" id="remember" name="remember">
-                        <label for="remember">Remember me</label>
+                        <label for="remember"></label>
                     </div>
                     <div class="forgot-password">
-                        <a href="#">Forgot Password?</a>
+                        <a href="forgotPassword.php">Forgot Password?</a>
                     </div>
                 </div>
                 <button type="submit" class="sign-in-button">

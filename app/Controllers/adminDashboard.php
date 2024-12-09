@@ -7,6 +7,7 @@
     require_once(__DIR__ . '/../config/database.php');
     require_once(__DIR__ . '/../Models/Student.php');
     require_once(__DIR__ . '/../Models/Teacher.php');
+    require_once(__DIR__ . '/../Models/Course.php');
 
     SessionManager::startSession();
     if (!SessionManager::isAdminLoggedIn()) {
@@ -14,11 +15,20 @@
         exit;
     }
 
-    // Initialize Teacher Model
+    // Set session data for logging
+    $_SESSION['user_type'] = 'admin';
+    $_SESSION['admin'] = [
+        'admin_id' => $_SESSION['admin_id'],
+        'admin_firstname' => $_SESSION['admin_firstname'],
+        'admin_lastname' => $_SESSION['admin_lastname']
+    ];
+
+    // Initialize Models
     $teacherModel = new Teacher($pdo);
     $totalTeachers = $teacherModel->countTotalTeachers();
 
     $studentModel = new Student($pdo);
+    $courseModel = new Course($pdo);
 
     $studentId = isset($_GET['student_id']) ? $_GET['student_id'] : null;
     $filterStudentId = isset($_GET['filter_student_id']) ? $_GET['filter_student_id'] : null;
@@ -73,6 +83,8 @@
                     <li><a href="adminDashboard.php?section=dashboard" class="sidebar-link <?php echo ($section === 'dashboard') ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                     <li><a href="adminDashboard.php?section=student-list" class="sidebar-link <?php echo ($section === 'student-list') ? 'active' : ''; ?>"><i class="fas fa-user-graduate"></i> Student</a></li>
                     <li><a href="adminDashboard.php?section=teacher-list" class="sidebar-link <?php echo ($section === 'teacher-list') ? 'active' : ''; ?>"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                    <li><a href="adminDashboard.php?section=course-list" class="sidebar-link <?php echo ($section === 'course-list') ? 'active' : ''; ?>"><i class="fas fa-book"></i> Courses</a></li>
+                    <li><a href="adminDashboard.php?section=user-logs" class="sidebar-link <?php echo ($section === 'user-logs') ? 'active' : ''; ?>"><i class="fas fa-history"></i> User Logs</a></li>
                     <li><a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>
@@ -163,6 +175,72 @@
                     </div>
                 </section>
             <?php endif; ?>
+            <!-- User Logs Section -->
+            <?php if (isset($_GET['section']) && $_GET['section'] == 'user-logs'): ?>
+                <section class="user-logs">
+                    <div class="scrollable-table-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2>User Activity Logs</h2>
+                            <div class="d-flex align-items-center">
+                                <div class="form-group mb-0 me-2">
+                                    <label for="searchInput" class="sr-only">Search Logs</label>
+                                    <div class="search-input-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Search Logs" style="min-width: 300px;">
+                                    </div>
+                                </div>
+                                <select id="logTypeFilter" class="form-select me-2" style="width: auto;">
+                                    <option value="all">All Users</option>
+                                    <option value="admin">Admin Only</option>
+                                    <option value="teacher">Teachers Only</option>
+                                </select>
+                                <input type="date" id="filterDate" class="form-control me-2">
+                                <button type="button" class="btn btn-danger" onclick="resetFilters()">Reset</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table table-striped table-hover">
+                                <colgroup>
+                                    <col style="width: 7%;">
+                                    <col style="width: 7%;">
+                                    <col style="width: 7%;">
+                                    <col style="width: 7%;">
+                                    <col style="width: 59%;">
+                                    <col style="width: 13%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>User ID</th>
+                                        <th>User Type</th>
+                                        <th>Action</th>
+                                        <th>IP Address</th>
+                                        <th>Browser</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTableBody">
+                                    <?php
+                                    require_once(__DIR__ . '/../Models/Logger.php');
+                                    $logger = new Logger($pdo);
+                                    $logs = $logger->getRecentLogs();
+                                    
+                                    foreach ($logs as $log) {
+                                        echo "<tr>";
+                                        echo "<td>" . htmlspecialchars($log['user_id']) . "</td>";
+                                        echo "<td>" . ucfirst(htmlspecialchars($log['user_type'])) . "</td>";
+                                        echo "<td>" . ucfirst(htmlspecialchars($log['action'])) . "</td>";
+                                        echo "<td>" . htmlspecialchars($log['ip_address']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($log['browser_info']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($log['timestamp']) . "</td>";
+                                        echo "</tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            <?php endif; ?>
             <!-- Student List Content -->
             <?php if (isset($_GET['section']) && $_GET['section'] == 'student-list'): ?>
                 <section class="student-list">
@@ -178,24 +256,24 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">Upload Students</a></li>
-                                        <li><a class="dropdown-item" href="../../app/Controllers/downloadStudents.php?type=template">Download Template</a></li>
-                                        <li><a class="dropdown-item" href="../../app/Controllers/downloadStudents.php?type=export">Export Students</a></li>
+                                        <li><a class="dropdown-item" href="../../app/Views/components/downloadStudents.php?type=template">Download Template</a></li>
+                                        <li><a class="dropdown-item" href="../../app/Views/components/downloadStudents.php?type=export">Export Students</a></li>
                                     </ul>
                                 </div>
                             </div>
                             <!-- Filter search form positioned to the right and aligned in a row -->
-                            <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
-                                <input type="hidden" name="section" value="student-list">
+                            <div class="d-flex align-items-center">
                                 <!-- Search Input -->
                                 <div class="form-group mb-0 me-2">
-                                    <label for="student_id" class="sr-only">Search by Student ID</label>
-                                    <input type="text" name="student_id" id="student_id" class="form-control" placeholder="Enter Student ID" value="<?php echo isset($_GET['student_id']) ? $_GET['student_id'] : ''; ?>">
+                                    <label for="student_search" class="sr-only">Search Students</label>
+                                    <div class="search-input-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="student_search" class="form-control" placeholder="Search Students" style="min-width: 300px;">
+                                    </div>
                                 </div>
-                                <!-- Search Button -->
-                                <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
-                                <a href="adminDashboard.php?section=student-list" class="btn btn-danger">Reset</a>
-                            </form>
+                                <button type="button" class="btn btn-danger" onclick="document.getElementById('student_search').value=''; document.getElementById('student_search').dispatchEvent(new Event('input'));">Reset</button>
+                            </div>
                         </div>
                         <!-- Student List Table -->
                         <div class = "table-container">
@@ -288,18 +366,18 @@
                     <div class="scrollable-table-container">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2>Teacher List</h2>
-                            <form method="GET" action="adminDashboard.php" class="d-flex align-items-center">
-                                <input type="hidden" name="section" value="teacher-list">
-                                <!-- Teacher ID Filter -->
-                                <div class="form-group mb-0 me-2">
-                                    <label for="filter_teacher_id" class="sr-only">Teacher ID</label>
-                                    <input type="text" name="filter_teacher_id" id="filter_teacher_id" class="form-control" placeholder="Teacher ID" value="<?php echo isset($_GET['filter_teacher_id']) ? $_GET['filter_teacher_id'] : ''; ?>">
+                            <div class="ms-auto">
+                                <!-- Search Input -->
+                                <div class="form-group mb-0 me-2 d-inline-block">
+                                    <label for="teacher_search" class="sr-only">Search Teachers</label>
+                                    <div class="search-input-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="teacher_search" class="form-control" placeholder="Search Teachers" style="min-width: 300px;">
+                                    </div>
                                 </div>
-                                <!-- Search Button -->
-                                <button type="submit" class="btn btn-primary me-2">Search</button>
                                 <!-- Reset Button -->
-                                <a href="adminDashboard.php?section=teacher-list" class="btn btn-danger">Reset</a>
-                            </form>
+                                <button type="button" class="btn btn-danger" onclick="document.getElementById('teacher_search').value=''; document.getElementById('teacher_search').dispatchEvent(new Event('input'));">Reset</button>
+                            </div>
                         </div>
                         <div class="table-container">
                             <table class="table table-striped table-hover">
@@ -344,11 +422,82 @@
                     </div>  
                 </section>
             <?php endif; ?>
+            <!-- Course List Content -->
+            <?php if (isset($_GET['section']) && $_GET['section'] == 'course-list'): ?>
+                <section class="course-list">
+                    <div class="scrollable-table-container">
+                        <h2>Course List</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <!-- Add Course Button -->
+                            <div>
+                                <button type="button" class="btn btn-success me-2" id="add-course-btn" data-bs-toggle="modal" data-bs-target="#addCourseModal">Add Course</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table table-striped table-hover">
+                                <colgroup>
+                                    <col style="width: 10%;">
+                                    <col style="width: 30%;">
+                                    <col style="width: 50%;">
+                                    <col style="width: 10%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Course ID</th>
+                                        <th>Course Name</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    $courses = $courseModel->getAllCourses();
+                                    if (!empty($courses)): 
+                                        foreach ($courses as $course): 
+                                    ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($course['course_id']); ?></td>
+                                            <td><?php echo htmlspecialchars($course['course_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($course['course_description']); ?></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-primary btn-sm" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editCourseModal"
+                                                            data-course-id="<?php echo htmlspecialchars($course['course_id']); ?>"
+                                                            data-course-name="<?php echo htmlspecialchars($course['course_name']); ?>"
+                                                            data-course-description="<?php echo htmlspecialchars($course['course_description']); ?>">
+                                                        <i class='bx bxs-edit'></i>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteCourseModal"
+                                                            data-course-id="<?php echo htmlspecialchars($course['course_id']); ?>">
+                                                        <i class='bx bxs-trash'></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php 
+                                        endforeach; 
+                                    else: 
+                                    ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center">No courses found.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            <?php endif; ?>
             <!-- Modals for View, Add, Edit, Delete -->
             <?php include __DIR__ . '/../Views/modals/viewStudentModal.php'; ?>
             <?php include __DIR__ . '/../Views/modals/addStudentModal.php'; ?>
             <?php include __DIR__ . '/../Views/modals/editStudentModal.php'; ?>
             <?php include __DIR__ . '/../Views/modals/deleteStudentModal.php'; ?>
+            <?php include __DIR__ . '/../Views/modals/courseModals.php'; ?>
             <!-- Logout Confirmation Modal -->
             <?php include __DIR__ . '/../Views/modals/logoutConfirmationModal.php'; ?>
         </div>
@@ -357,103 +506,18 @@
     <?php include __DIR__ . '/../Views/layouts/logoutAnimation.php'; ?>
     <!-- Success Modals for Add, Edit, and Delete Actions -->
     <?php include __DIR__ . '/../Views/modals/successModals.php'; ?>
-    
     <!-- Bulk Upload Modal -->
-    <div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bulkUploadModalLabel">Bulk Upload Students</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="bulkUploadForm" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="fileUpload" class="form-label">Choose CSV or Excel File</label>
-                            <input type="file" class="form-control" id="fileUpload" name="file" accept=".csv,.xlsx,.xls" required>
-                        </div>
-                        <div class="mb-3">
-                            <p class="text-muted">File should contain the following columns:</p>
-                            <ul class="text-muted">
-                                <li>student_id (required)</li>
-                                <li>student_firstname (required)</li>
-                                <li>student_lastname (required)</li>
-                                <li>student_email</li>
-                                <li>student_birthdate</li>
-                                <li>student_phone</li>
-                                <li>student_address</li>
-                                <li>student_gender</li>
-                                <li>guardian_name</li>
-                                <li>guardian_contact</li>
-                                <li>student_level</li>
-                                <li>course_id</li>
-                                <li>student_rfid</li>
-                            </ul>
-                        </div>
-                        <div id="uploadStatus" class="alert d-none"></div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="uploadSubmit">Upload</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include __DIR__ . '/../Views/modals/bulkStudentUploadModal.php'; ?>
 
-    <script>
-        document.getElementById('uploadSubmit').addEventListener('click', function() {
-            const form = document.getElementById('bulkUploadForm');
-            const fileInput = document.getElementById('fileUpload');
-            const statusDiv = document.getElementById('uploadStatus');
-            
-            if (!fileInput.files[0]) {
-                statusDiv.textContent = 'Please select a file';
-                statusDiv.className = 'alert alert-danger';
-                return;
-            }
-
-            const formData = new FormData(form);
-            
-            statusDiv.textContent = 'Uploading...';
-            statusDiv.className = 'alert alert-info';
-            
-            fetch('../../app/Controllers/processUpload.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    statusDiv.className = 'alert alert-success';
-                    let message = data.message;
-                    if (data.errors && data.errors.length > 0) {
-                        message += '\n\nWarnings:\n' + data.errors.join('\n');
-                    }
-                    statusDiv.textContent = message;
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 3000);
-                } else {
-                    statusDiv.className = 'alert alert-danger';
-                    statusDiv.textContent = data.message;
-                    if (data.errors) {
-                        statusDiv.textContent += '\n' + data.errors.join('\n');
-                    }
-                }
-            })
-            .catch(error => {
-                statusDiv.className = 'alert alert-danger';
-                statusDiv.textContent = 'An error occurred during upload';
-            });
-        });
-    </script>
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/modals.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
     <script src="../../assets/js/logout.js"></script>
-    
+    <script src="../../assets/js/logs.js"></script>
+    <script src="../../assets/js/course.js"></script>
+    <script src="../../assets/js/studentBulkUpload.js"></script>
 </body>
 </html>

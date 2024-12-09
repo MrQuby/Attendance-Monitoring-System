@@ -68,7 +68,6 @@ h2 {
     margin-right: 12px;
     color: inherit;
     width: 25px;
-    /* Ensure consistent icon width */
     text-align: center;
 }
 
@@ -236,6 +235,19 @@ table {
     background-color: #ffffff;
 }
 
+.user-logs .table-container {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+}
+
+.user-logs .scrollable-table-container {
+    overflow: visible;
+}
+
+.user-logs table td {
+    padding: 10px 15px !important;
+}
+
 table th {
     padding: 10px 10px 10px 15px !important;
     border: 1px solid #ddd;
@@ -250,6 +262,14 @@ table td {
     border: 1px solid #ddd;
     padding: 5px 15px !important;
     vertical-align: middle;
+}
+
+.teacher-list table td {
+    padding: 10px 15px !important;
+}
+
+.course-list table td {
+    padding: 10px 15px !important;
 }
 
 /* Buttons Styling */
@@ -389,6 +409,25 @@ table td {
     background-color: #0097bc !important;
 }
 
+/* Loading Spinner */
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
 /* Loading animation */
 .loading-overlay {
     position: fixed;
@@ -402,6 +441,24 @@ table td {
     justify-content: center;
     z-index: 1050;
     flex-direction: column;
+}
+
+/* Search input styling */
+.search-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-container i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.search-input-container input {
+    padding-left: 35px;
 }
 
 /* Responsive Design */

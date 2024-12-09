@@ -1,5 +1,4 @@
 <?php
-
     session_start();
 
     require_once(__DIR__ . '/../../config/database.php');
@@ -41,12 +40,15 @@
         }
     }
 
-    // Update the student in the database with all new fields, including the profile picture path
-    $studentModel->updateStudent($studentId, $studentRfid, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
+    // Try to update the student
+    $result = $studentModel->updateStudent($studentId, $studentRfid, $firstName, $lastName, $email, $birthdate, $phone, $address, $gender, $guardianName, $guardianContact, $level, $courseId, $profilePicturePath);
 
-    // Set success message in session
-    $_SESSION['edit_student_success'] = true;
+    if ($result['success']) {
+        $_SESSION['edit_student_success'] = true;
+    }
 
-    header('Location: ../../Controllers/adminDashboard.php?section=student-list');
+    // Return JSON response
+    header('Content-Type: application/json');
+    echo json_encode($result);
     exit;
 ?>

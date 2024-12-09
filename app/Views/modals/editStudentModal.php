@@ -8,6 +8,14 @@
             </div>
             <div class="modal-body">
                 <form id="edit-student-form" action="/app/Views/components/editStudent.php" method="POST" enctype="multipart/form-data">
+                    <?php if (isset($_SESSION['edit_student_error'])): ?>
+                        <div class="alert alert-danger">
+                            <?php 
+                                echo htmlspecialchars($_SESSION['edit_student_error']);
+                                unset($_SESSION['edit_student_error']);
+                            ?>
+                        </div>
+                    <?php endif; ?>
                     
                     <!-- Profile Picture Upload with Preview -->
                     <div class="mb-4 text-center">

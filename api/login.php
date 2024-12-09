@@ -5,6 +5,7 @@
     require_once(__DIR__ . '/../app/Models/Teacher.php');
     require_once(__DIR__ . '/../app/Models/Admin.php');
     require_once(__DIR__ . '/../app/Models/SessionManager.php');
+    require_once(__DIR__ . '/../app/Models/Logger.php');
     require_once(__DIR__ . '/../app/config/database.php');
 
     session_start();
@@ -21,7 +22,6 @@
         $id = $_POST['user_id'];
         $password = $_POST['user_password'];
 
-        
         $admin = new Admin($pdo);
 
         $result = $admin->login($id, $password);
@@ -30,6 +30,8 @@
             SessionManager::startSession();
             SessionManager::loginAdmin($result['admin']);
             $_SESSION['success'] = "Welcome back, {$result['admin']['admin_firstname']} {$result['admin']['admin_lastname']}!";
+            $logger = new Logger($pdo);
+            $logger->logUserActivity($result['admin']['admin_id'], 'admin', 'login');
             $_SESSION['redirect_url'] = '../../Controllers/adminDashboard.php';
             header('Location: ../app/Views/auth/loginScreen.php');
             exit;
@@ -42,6 +44,8 @@
             SessionManager::startSession();
             SessionManager::loginTeacher($result['teacher']);
             $_SESSION['success'] = "Welcome back, {$result['teacher']['teacher_firstname']} {$result['teacher']['teacher_lastname']}!";
+            $logger = new Logger($pdo);
+            $logger->logUserActivity($result['teacher']['teacher_id'], 'teacher', 'login');
             $_SESSION['redirect_url'] = '../../Controllers/teacherDashboard.php';
             header('Location: ../app/Views/auth/loginScreen.php');
             exit;
