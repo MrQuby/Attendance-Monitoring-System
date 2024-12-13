@@ -20,7 +20,19 @@ class Logger {
                      VALUES (:adminId, :teacherId, :action, :ipAddress, :browserInfo)";
             
             $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-            $browserInfo = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            
+            // Extract Windows version and browser
+            $browserInfo = 'Unknown';
+            if (preg_match('/Windows NT ([\d.]+)/', $userAgent, $windowsMatch)) {
+                $windowsVersion = str_replace('10.0', '10', $windowsMatch[1]); // Convert 10.0 to just 10
+                // Check for Edge first since it contains Chrome in its UA string
+                if (preg_match('/Edg\//', $userAgent)) {
+                    $browserInfo = "Windows {$windowsVersion} - Edge";
+                } elseif (preg_match('/(Chrome|Opera|Firefox|Safari)\/[\d.]+/', $userAgent, $browserMatch)) {
+                    $browserInfo = "Windows {$windowsVersion} - {$browserMatch[1]}";
+                }
+            }
             
             $adminId = null;
             $teacherId = null;
@@ -163,51 +175,29 @@ class Logger {
 
     public function getLogsByDateRange($startDate, $endDate) {
         try {
-            error_log("Attempting to retrieve logs by date range: $startDate - $endDate");
-            
             $query = "SELECT 
-                        l.*,
-                        CASE 
-                            WHEN l.admin_id IS NOT NULL THEN CONCAT(a.admin_firstname, ' ', a.admin_lastname)
-                            ELSE CONCAT(t.teacher_firstname, ' ', t.teacher_lastname)
-                        END as user_name,
-                        CASE 
-                            WHEN l.admin_id IS NOT NULL THEN 'admin'
-                            ELSE 'teacher'
-                        END as user_type,
-                        CASE 
-                            WHEN l.admin_id IS NOT NULL THEN l.admin_id
-                            ELSE l.teacher_id
-                        END as user_id
-                     FROM user_logs l
-                     LEFT JOIN admins a ON l.admin_id = a.admin_id
-                     LEFT JOIN teachers t ON l.teacher_id = t.teacher_id
-                     WHERE DATE(l.timestamp) BETWEEN :startDate AND :endDate 
-                     ORDER BY l.timestamp DESC";
+                COALESCE(admin_id, teacher_id) as user_id,
+                CASE 
+                    WHEN admin_id IS NOT NULL THEN 'admin'
+                    WHEN teacher_id IS NOT NULL THEN 'teacher'
+                END as user_type,
+                action,
+                ip_address,
+                browser_info,
+                timestamp
+            FROM user_logs 
+            WHERE DATE(timestamp) BETWEEN :start_date AND :end_date
+            ORDER BY timestamp DESC";
             
-            $statement = $this->pdo->prepare($query);
-            
-            error_log("Executing query with start date: $startDate and end date: $endDate");
-            
-            $result = $statement->execute([
-                ':startDate' => $startDate,
-                ':endDate' => $endDate
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                'start_date' => $startDate,
+                'end_date' => $endDate
             ]);
-            
-            if (!$result) {
-                $error = $statement->errorInfo();
-                $this->lastError = $error[2];
-                error_log("Database error: " . print_r($error, true));
-                return false;
-            }
-            
-            error_log("Logs by date range retrieved successfully");
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
-            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->lastError = $e->getMessage();
-            error_log("PDO Exception: " . $e->getMessage());
-            return false;
+            error_log("Error in getLogsByDateRange: " . $e->getMessage());
+            return [];
         }
     }
 

@@ -83,7 +83,12 @@
                     <h1>Welcome back, <span><?php echo htmlspecialchars($_SESSION['teacher_firstname'] . ' ' . $_SESSION['teacher_lastname']); ?></span></h1>
                 </div>
                 <div class="datetime-display">
-                    <h2 id="current-time"></h2>
+                    <div class="date-container">
+                        <h2 id="current-date"></h2>
+                    </div>
+                    <div class="time-container">
+                        <h2 id="current-time"></h2>
+                    </div>
                 </div>
             </header>
             <!-- Dashboard Content -->
@@ -315,6 +320,7 @@
     <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/modals.js"></script>
+    <script src="../../assets/js/viewStudent.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
     <script src="../../assets/js/logout.js"></script>
 </body>

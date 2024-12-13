@@ -26,7 +26,12 @@
         <div class="main-content">
             <!-- Date and Time Display -->
             <div class="datetime-display">
-                <h2 id="current-time">SUNDAY MAY 19, 2024, 11:34:53 PM</h2>
+                <div class="date-container">
+                    <h2 id="current-date"></h2>
+                </div>
+                <div class="time-container">
+                    <h2 id="current-time"></h2>
+                </div>
             </div>
 
             <div class="content-grid">

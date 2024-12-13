@@ -339,87 +339,112 @@
                 $successCount = 0;
                 $errors = [];
                 $defaultProfilePicture = '../../uploads/pp.png';
+                $batchSize = 10; // Process 10 records at a time
 
-                foreach ($data as $index => $row) {
-                    // Skip empty rows
-                    if (empty(array_filter($row))) {
-                        continue;
-                    }
+                // Get course mappings
+                $courseMappings = [];
+                $stmt = $this->pdo->prepare("SELECT course_id, course_name FROM courses");
+                $stmt->execute();
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $courseCode = preg_replace('/[^A-Z]/', '', $row['course_name']); // Extract course code (e.g., BSIT from "Bachelor of Science in Information Technology")
+                    $courseMappings[$courseCode] = $row['course_id'];
+                }
 
-                    // Validate required fields
-                    if (empty($row['student_id']) || empty($row['student_firstname']) || empty($row['student_lastname'])) {
-                        $errors[] = "Row " . ($index + 1) . ": Missing required fields (Student ID, First Name, or Last Name)";
-                        continue;
-                    }
+                $batches = array_chunk($data, $batchSize);
 
-                    // Format birthdate to Y-m-d format if it exists
-                    if (!empty($row['student_birthdate'])) {
-                        // Try to parse the date
-                        $birthdate = date('Y-m-d', strtotime($row['student_birthdate']));
-                        if ($birthdate === '1970-01-01' || $birthdate === false) {
-                            $errors[] = "Row " . ($index + 1) . ": Invalid birthdate format. Please use YYYY-MM-DD format";
+                foreach ($batches as $batchIndex => $batch) {
+                    foreach ($batch as $index => $row) {
+                        // Skip empty rows
+                        if (empty(array_filter($row))) {
                             continue;
                         }
-                        $row['student_birthdate'] = $birthdate;
-                    }
 
-                    // Check if student ID exists
-                    $stmt = $this->pdo->prepare("SELECT deleted FROM students WHERE student_id = ?");
-                    $stmt->execute([$row['student_id']]);
-                    $existingStudent = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    $query = $existingStudent && $existingStudent['deleted']
-                        ? "UPDATE students SET 
-                            student_firstname = :firstname,
-                            student_lastname = :lastname,
-                            student_email = :email,
-                            student_birthdate = :birthdate,
-                            student_phone = :phone,
-                            student_address = :address,
-                            student_gender = :gender,
-                            guardian_name = :guardian_name,
-                            guardian_contact = :guardian_contact,
-                            student_level = :level,
-                            course_id = :course_id,
-                            student_rfid = :rfid,
-                            profile_picture = :profile_picture,
-                            deleted = FALSE,
-                            deleted_at = NULL
-                            WHERE student_id = :student_id"
-                        : "INSERT INTO students (
-                            student_id, student_firstname, student_lastname, student_email,
-                            student_birthdate, student_phone, student_address, student_gender,
-                            guardian_name, guardian_contact, student_level, course_id,
-                            student_rfid, profile_picture
-                        ) VALUES (
-                            :student_id, :firstname, :lastname, :email,
-                            :birthdate, :phone, :address, :gender,
-                            :guardian_name, :guardian_contact, :level, :course_id,
-                            :rfid, :profile_picture
-                        )";
-
-                    // Check if RFID already exists (if provided)
-                    if (!empty($row['student_rfid'])) {
-                        // Format the RFID to ensure it has 10 digits with leading zeros
-                        $formattedRfid = str_pad($row['student_rfid'], 10, '0', STR_PAD_LEFT);
-                        
-                        // Update the RFID in the row data to include leading zeros
-                        $row['student_rfid'] = $formattedRfid;
-                        
-                        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM students WHERE student_rfid = ? AND deleted = FALSE");
-                        $stmt->execute([$formattedRfid]);
-                        if ($stmt->fetchColumn() > 0) {
-                            $errors[] = "Row " . ($index + 1) . ": RFID {$formattedRfid} already exists";
+                        // Validate required fields
+                        if (empty($row['student_id']) || empty($row['student_firstname']) || empty($row['student_lastname'])) {
+                            $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": Missing required fields (Student ID, First Name, or Last Name)";
                             continue;
                         }
-                    }
 
-                    $stmt = $this->pdo->prepare($query);
+                        // Format birthdate to Y-m-d format if it exists
+                        if (!empty($row['student_birthdate'])) {
+                            // Try to parse the date
+                            $birthdate = date('Y-m-d', strtotime($row['student_birthdate']));
+                            if ($birthdate === '1970-01-01' || $birthdate === false) {
+                                $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": Invalid birthdate format. Please use YYYY-MM-DD format";
+                                continue;
+                            }
+                            $row['student_birthdate'] = $birthdate;
+                        }
 
-                    // Execute with proper parameter binding
-                    try {
-                        if ($existingStudent && $existingStudent['deleted']) {
-                            $stmt->execute([
+                        // Map course code to course_id
+                        if (!empty($row['course_id'])) {
+                            if (isset($courseMappings[$row['course_id']])) {
+                                $row['course_id'] = $courseMappings[$row['course_id']];
+                            } else {
+                                $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": Invalid course code '{$row['course_id']}'";
+                                continue;
+                            }
+                        }
+
+                        // Check if student ID exists
+                        $stmt = $this->pdo->prepare("SELECT deleted FROM students WHERE student_id = ?");
+                        $stmt->execute([$row['student_id']]);
+                        $existingStudent = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        // Format RFID with proper prefix
+                        if (!empty($row['student_rfid'])) {
+                            $rfid = $row['student_rfid'];
+                            if (strpos($rfid, 'RF') === 0) {
+                                $rfid = '00' . $rfid;
+                            }
+                            $row['student_rfid'] = str_pad($rfid, 10, '0', STR_PAD_LEFT);
+                        }
+
+                        $query = $existingStudent && $existingStudent['deleted']
+                            ? "UPDATE students SET 
+                                student_firstname = :firstname,
+                                student_lastname = :lastname,
+                                student_email = :email,
+                                student_birthdate = :birthdate,
+                                student_phone = :phone,
+                                student_address = :address,
+                                student_gender = :gender,
+                                guardian_name = :guardian_name,
+                                guardian_contact = :guardian_contact,
+                                student_level = :level,
+                                course_id = :course_id,
+                                student_rfid = :rfid,
+                                profile_picture = :profile_picture,
+                                deleted = FALSE,
+                                deleted_at = NULL
+                                WHERE student_id = :student_id"
+                            : "INSERT INTO students (
+                                student_id, student_firstname, student_lastname, student_email,
+                                student_birthdate, student_phone, student_address, student_gender,
+                                guardian_name, guardian_contact, student_level, course_id,
+                                student_rfid, profile_picture
+                            ) VALUES (
+                                :student_id, :firstname, :lastname, :email,
+                                :birthdate, :phone, :address, :gender,
+                                :guardian_name, :guardian_contact, :level, :course_id,
+                                :rfid, :profile_picture
+                            )";
+
+                        // Check if RFID already exists (if provided)
+                        if (!empty($row['student_rfid'])) {
+                            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM students WHERE student_rfid = ? AND deleted = FALSE AND student_id != ?");
+                            $stmt->execute([$row['student_rfid'], $row['student_id']]);
+                            if ($stmt->fetchColumn() > 0) {
+                                $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": RFID {$row['student_rfid']} already exists";
+                                continue;
+                            }
+                        }
+
+                        $stmt = $this->pdo->prepare($query);
+
+                        // Execute with proper parameter binding
+                        try {
+                            $params = [
                                 ':student_id' => $row['student_id'],
                                 ':firstname' => $row['student_firstname'],
                                 ':lastname' => $row['student_lastname'],
@@ -434,34 +459,25 @@
                                 ':course_id' => $row['course_id'] ?? null,
                                 ':rfid' => $row['student_rfid'] ?? null,
                                 ':profile_picture' => $defaultProfilePicture
-                            ]);
-                        } else {
-                            $stmt->execute([
-                                ':student_id' => $row['student_id'],
-                                ':firstname' => $row['student_firstname'],
-                                ':lastname' => $row['student_lastname'],
-                                ':email' => $row['student_email'] ?? null,
-                                ':birthdate' => $row['student_birthdate'] ?? null,
-                                ':phone' => $row['student_phone'] ?? null,
-                                ':address' => $row['student_address'] ?? null,
-                                ':gender' => $row['student_gender'] ?? null,
-                                ':guardian_name' => $row['guardian_name'] ?? null,
-                                ':guardian_contact' => $row['guardian_contact'] ?? null,
-                                ':level' => $row['student_level'] ?? null,
-                                ':course_id' => $row['course_id'] ?? null,
-                                ':rfid' => $row['student_rfid'] ?? null,
-                                ':profile_picture' => $defaultProfilePicture
-                            ]);
+                            ];
+                            
+                            $stmt->execute($params);
+                            $successCount++;
+                        } catch (PDOException $e) {
+                            $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": " . $e->getMessage();
+                            continue;
                         }
-                        $successCount++;
-                    } catch (PDOException $e) {
-                        $errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
-                        continue;
+                    }
+                    
+                    // Commit each batch
+                    if ($successCount > 0) {
+                        $this->pdo->commit();
+                        // Start a new transaction for the next batch
+                        $this->pdo->beginTransaction();
                     }
                 }
 
                 if ($successCount > 0) {
-                    $this->pdo->commit();
                     return [
                         'success' => true,
                         'message' => "$successCount students successfully uploaded",

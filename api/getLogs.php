@@ -8,11 +8,11 @@ $logger = new Logger($pdo);
 $data = json_decode(file_get_contents('php://input'), true);
 
 $userType = $data['userType'] ?? 'all';
-$filterDate = $data['filterDate'] ?? '';
-$searchQuery = $data['searchQuery'] ?? '';
+$startDate = $data['startDate'] ?? '';
+$endDate = $data['endDate'] ?? '';
 
-if (!empty($filterDate)) {
-    $logs = $logger->getLogsByDate($filterDate);
+if (!empty($startDate) && !empty($endDate)) {
+    $logs = $logger->getLogsByDateRange($startDate, $endDate);
 } elseif ($userType !== 'all') {
     $logs = $logger->getLogsByUserType($userType);
 } else {

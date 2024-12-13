@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
 /* General Reset and Body Styling */
 * {
@@ -73,16 +74,54 @@ body {
 /* Date and Time Display Styling */
 .datetime-display {
     background-color: white;
-    padding: 5px 0 1px 0;
+    padding: 10px 20px;
     border-radius: 5px;
     color: #1a75ff;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.date-container, .time-container {
     text-align: center;
 }
 
+#current-date {
+    font-size: 2.5rem;
+    font-weight: 500;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    margin: 0;
+}
+
 #current-time {
-    font-size: 50px;
-    font-weight: bold;
+    font-weight: 900;
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+}
+
+.time-container .time-digits {
+    font-family: 'Roboto Mono', monospace;
+    width: 120px;
+    display: inline-block;
+    text-align: right;
+    font-size: 2.2rem;
+    letter-spacing: 0px;
+    margin-right: 14px;
+    font-weight: 900;
+    margin-bottom: 2px;
+}
+
+.time-container .time-ampm {
+    font-family: 'Roboto Mono', monospace;
+    width: 35px;
+    display: inline-block;
+    margin-left: 45px;
+    margin-bottom: 2px;
+    text-align: left;
+    font-size: 2.2rem;
+    font-weight: 900;
 }
 
 /* Content Layout Grid */

@@ -1,21 +1,49 @@
 $(document).ready(function() {
     // Add event listeners for real-time filtering
-    $('#logTypeFilter, #filterDate, #searchInput').on('change keyup', function() {
+    $('#logTypeFilter, #startDate, #endDate, #searchInput').on('change keyup', function() {
         filterLogs();
+    });
+
+    // Add validation for date range
+    $('#startDate').on('change', function() {
+        const startDate = $(this).val();
+        const endDate = $('#endDate').val();
+        $('#endDate').attr('min', startDate);
+        
+        if (endDate && startDate > endDate) {
+            $('#endDate').val(startDate);
+        }
+    });
+
+    $('#endDate').on('change', function() {
+        const endDate = $(this).val();
+        const startDate = $('#startDate').val();
+        
+        if (startDate && endDate < startDate) {
+            $(this).val(startDate);
+            alert('End date cannot be earlier than start date');
+        }
     });
 });
 
 function resetFilters() {
     $('#logTypeFilter').val('all');
-    $('#filterDate').val('');
+    $('#startDate').val('');
+    $('#endDate').val('');
     $('#searchInput').val('');
     filterLogs();
 }
 
 function filterLogs() {
     const userType = $('#logTypeFilter').val();
-    const filterDate = $('#filterDate').val();
+    const startDate = $('#startDate').val();
+    const endDate = $('#endDate').val();
     const searchQuery = $('#searchInput').val().toLowerCase();
+
+    // Validate dates
+    if (startDate && endDate && endDate < startDate) {
+        return; // Don't proceed with filtering if dates are invalid
+    }
 
     // Show loading state
     const tbody = $('#logsTableBody');
@@ -24,7 +52,8 @@ function filterLogs() {
     // Prepare the data to send
     const data = {
         userType: userType,
-        filterDate: filterDate,
+        startDate: startDate,
+        endDate: endDate,
         searchQuery: searchQuery
     };
 

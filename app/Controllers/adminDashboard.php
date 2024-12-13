@@ -104,7 +104,12 @@
                     <h1>Welcome back, <span><?php echo htmlspecialchars($_SESSION['admin_firstname'] . ' ' . $_SESSION['admin_lastname']); ?></span></h1>
                 </div>
                 <div class="datetime-display">
-                    <h1 id="current-time"></h2>
+                    <div class="date-container">
+                        <h2 id="current-date"></h2>
+                    </div>
+                    <div class="time-container">
+                        <h2 id="current-time"></h2>
+                    </div>
                 </div>
             </header>
             <!-- Dashboard Content -->
@@ -190,23 +195,30 @@
                                     </div>
                                 </div>
                                 <select id="logTypeFilter" class="form-select me-2" style="width: auto;">
-                                    <option value="all">All Users</option>
-                                    <option value="admin">Admin Only</option>
-                                    <option value="teacher">Teachers Only</option>
+                                    <option value="all">All</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="teacher">Teachers</option>
                                 </select>
-                                <input type="date" id="filterDate" class="form-control me-2">
+                                <div class="me-2" style="margin-top: -24px;">
+                                    <label for="startDate" class="form-label mb-0">Start Date</label>
+                                    <input type="date" id="startDate" class="form-control" placeholder="From Date">
+                                </div>
+                                <div class="me-2" style="margin-top: -24px;">
+                                    <label for="endDate" class="form-label mb-0">End Date</label>
+                                    <input type="date" id="endDate" class="form-control" placeholder="To Date">
+                                </div>
                                 <button type="button" class="btn btn-danger" onclick="resetFilters()">Reset</button>
                             </div>
                         </div>
                         <div class="table-container">
                             <table class="table table-striped table-hover">
                                 <colgroup>
-                                    <col style="width: 7%;">
-                                    <col style="width: 7%;">
-                                    <col style="width: 7%;">
-                                    <col style="width: 7%;">
-                                    <col style="width: 59%;">
-                                    <col style="width: 13%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 30%;">
+                                    <col style="width: 17%;">
                                 </colgroup>
                                 <thead>
                                     <tr>
@@ -255,9 +267,9 @@
                                         Bulk Actions
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">Upload Students</a></li>
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">Upload CSV</a></li>
                                         <li><a class="dropdown-item" href="../../app/Views/components/downloadStudents.php?type=template">Download Template</a></li>
-                                        <li><a class="dropdown-item" href="../../app/Views/components/downloadStudents.php?type=export">Export Students</a></li>
+                                        <li><a class="dropdown-item" href="../../app/Views/components/downloadStudents.php?type=export">Export CSV</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -508,7 +520,6 @@
     <?php include __DIR__ . '/../Views/modals/successModals.php'; ?>
     <!-- Bulk Upload Modal -->
     <?php include __DIR__ . '/../Views/modals/bulkStudentUploadModal.php'; ?>
-
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

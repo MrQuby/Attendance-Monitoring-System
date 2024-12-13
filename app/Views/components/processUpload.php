@@ -56,6 +56,29 @@
         $studentModel = new Student($pdo);
         $result = $studentModel->bulkUploadStudents($mappedData);
 
+        // Format error messages for duplicate entries
+        if (!$result['success'] && isset($result['errors'])) {
+            $duplicateErrors = array_filter($result['errors'], function($error) {
+                return strpos($error, 'Duplicate entry') !== false;
+            });
+            
+            if (!empty($duplicateErrors)) {
+                // Extract student IDs from error messages
+                $duplicateIds = array_map(function($error) {
+                    preg_match("/SCC-\d+/", $error, $matches);
+                    return $matches[0] ?? '';
+                }, $duplicateErrors);
+                
+                // Create a user-friendly message
+                $result = [
+                    'success' => false,
+                    'message' => "The following students are already in the system:\n" . 
+                                implode(", ", array_filter($duplicateIds)) . 
+                                "\n\nPlease remove these students from your upload file or update them individually."
+                ];
+            }
+        }
+
         echo json_encode($result);
 
     } catch (Exception $e) {
