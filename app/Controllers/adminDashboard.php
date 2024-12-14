@@ -194,11 +194,6 @@
                                         <input type="text" id="searchInput" class="form-control" placeholder="Search Logs" style="min-width: 300px;">
                                     </div>
                                 </div>
-                                <select id="logTypeFilter" class="form-select me-2" style="width: auto;">
-                                    <option value="all">All</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="teacher">Teachers</option>
-                                </select>
                                 <div class="me-2" style="margin-top: -24px;">
                                     <label for="startDate" class="form-label mb-0">Start Date</label>
                                     <input type="date" id="startDate" class="form-control" placeholder="From Date">
@@ -207,7 +202,7 @@
                                     <label for="endDate" class="form-label mb-0">End Date</label>
                                     <input type="date" id="endDate" class="form-control" placeholder="To Date">
                                 </div>
-                                <button type="button" class="btn btn-danger" onclick="resetFilters()">Reset</button>
+                                <button type="button" class="btn btn-danger" id="resetButton">Reset</button>
                             </div>
                         </div>
                         <div class="table-container">
@@ -284,7 +279,7 @@
                                     </div>
                                 </div>
                                 <!-- Reset Button -->
-                                <button type="button" class="btn btn-danger" onclick="document.getElementById('student_search').value=''; document.getElementById('student_search').dispatchEvent(new Event('input'));">Reset</button>
+                                <button type="button" class="btn btn-danger" id="resetButton">Reset</button>
                             </div>
                         </div>
                         <!-- Student List Table -->
@@ -388,7 +383,7 @@
                                     </div>
                                 </div>
                                 <!-- Reset Button -->
-                                <button type="button" class="btn btn-danger" onclick="document.getElementById('teacher_search').value=''; document.getElementById('teacher_search').dispatchEvent(new Event('input'));">Reset</button>
+                                <button type="button" class="btn btn-danger" id="resetButton">Reset</button>
                             </div>
                         </div>
                         <div class="table-container">
@@ -524,6 +519,7 @@
     <script src="../../assets/js/date.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/search.js"></script>
     <script src="../../assets/js/modals.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
     <script src="../../assets/js/logout.js"></script>

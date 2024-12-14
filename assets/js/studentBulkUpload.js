@@ -1,3 +1,18 @@
+// Clear status when modal is closed
+document.getElementById('bulkUploadModal').addEventListener('hidden.bs.modal', function () {
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.textContent = '';
+    statusDiv.className = '';
+    document.getElementById('bulkUploadForm').reset();
+});
+
+// Clear status when new file is selected
+document.getElementById('fileUpload').addEventListener('change', function() {
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.textContent = '';
+    statusDiv.className = '';
+});
+
 document.getElementById('uploadSubmit').addEventListener('click', function () {
     const form = document.getElementById('bulkUploadForm');
     const fileInput = document.getElementById('fileUpload');
@@ -20,22 +35,14 @@ document.getElementById('uploadSubmit').addEventListener('click', function () {
     })
         .then(response => response.json())
         .then(data => {
+            statusDiv.textContent = data.message;
             if (data.success) {
                 statusDiv.className = 'alert alert-success';
-                let message = data.message;
-                if (data.errors && data.errors.length > 0) {
-                    message += '\n\nWarnings:\n' + data.errors.join('\n');
-                }
-                statusDiv.textContent = message;
                 setTimeout(() => {
                     window.location.reload();
                 }, 3000);
             } else {
-                statusDiv.className = 'alert alert-danger';
-                statusDiv.textContent = data.message;
-                if (data.errors) {
-                    statusDiv.textContent += '\n' + data.errors.join('\n');
-                }
+                statusDiv.className = 'alert alert-warning';
             }
         })
         .catch(error => {

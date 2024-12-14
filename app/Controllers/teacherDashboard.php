@@ -160,11 +160,11 @@
                                     <label for="student_search" class="sr-only">Search Students</label>
                                     <div class="search-input-container">
                                         <i class="fas fa-search"></i>
-                                        <input type="text" id="student_search" class="form-control" placeholder="Search Students">
+                                        <input type="text" id="student_search" class="form-control" placeholder="Search">
                                     </div>
                                 </div>
                                 <!-- Reset Button -->
-                                <a href="teacherDashboard.php?section=student-list" class="btn btn-danger">Reset</a>
+                                <button type="button" class="btn btn-danger" onclick="document.getElementById('student_search').value=''; document.getElementById('student_search').dispatchEvent(new Event('input'));">Reset</button>
                             </div>
                         </div>
                         <!-- Student List Table -->                   
@@ -239,16 +239,16 @@
                                     <label for="attendance_search" class="sr-only">Search Attendance</label>
                                     <div class="search-input-container">
                                         <i class="fas fa-search"></i>
-                                        <input type="text" id="attendance_search" class="form-control" placeholder="Search Students">
+                                        <input type="text" id="attendance_search" class="form-control" placeholder="Search">
                                     </div>
                                 </div>
                                 <!-- Date Filter -->
                                 <div class="form-group mb-0 me-2">
                                     <label for="filter_date" class="sr-only">Date</label>
-                                    <input type="date" id="filter_date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                                    <input type="date" id="filter_date" class="form-control" placeholder="dd/mm/yyyy">
                                 </div>
                                 <!-- Reset Button -->
-                                <a href="teacherDashboard.php?section=attendance" class="btn btn-danger">Reset</a>
+                                <button type="button" class="btn btn-danger" id="resetAttendanceButton">Reset</button>
                             </div>
                         </div>
                         <div class="table-container">
@@ -319,6 +319,7 @@
     <!-- JS -->
     <script src="../../assets/js/date.js"></script>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/search.js"></script>
     <script src="../../assets/js/modals.js"></script>
     <script src="../../assets/js/viewStudent.js"></script>
     <script src="../../assets/js/sidebar.js"></script>

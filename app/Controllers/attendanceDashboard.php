@@ -37,7 +37,7 @@
             <div class="content-grid">
                 <!-- Current Student Status Box -->
                 <div class="status-box">
-                    <img src="../../uploads/profile.jpg" alt="Student Avatar" class="student-avatar" id="current-student-avatar">
+                    <img src="../../uploads/pp.png" alt="Student Avatar" class="student-avatar" id="current-student-avatar">
                     <div class="status-label" id="current-status">STATUS</div>
                     <div class="student-text" id="current-student-name">STUDENT NAME</div>
                     <div class="student-text" id="current-department">DEPARTMENT</div>

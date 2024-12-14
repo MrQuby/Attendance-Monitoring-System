@@ -4,6 +4,21 @@ $(document).ready(function() {
         filterLogs();
     });
 
+    // Add click handler for reset button
+    $('#resetButton').on('click', function() {
+        // Reset all filter values
+        $('#logTypeFilter').val('all');
+        $('#startDate').val('');
+        $('#endDate').val('');
+        $('#searchInput').val('');
+        
+        // Clear any min/max date constraints
+        $('#endDate').removeAttr('min');
+        
+        // Trigger the filter to refresh the table
+        filterLogs();
+    });
+
     // Add validation for date range
     $('#startDate').on('change', function() {
         const startDate = $(this).val();
@@ -26,11 +41,18 @@ $(document).ready(function() {
     });
 });
 
-function resetFilters() {
+// Make resetFilters function globally accessible
+window.resetFilters = function() {
+    // Reset all filter values
     $('#logTypeFilter').val('all');
     $('#startDate').val('');
     $('#endDate').val('');
     $('#searchInput').val('');
+    
+    // Clear any min/max date constraints
+    $('#endDate').removeAttr('min');
+    
+    // Trigger the filter to refresh the table
     filterLogs();
 }
 

@@ -56,28 +56,76 @@
         $studentModel = new Student($pdo);
         $result = $studentModel->bulkUploadStudents($mappedData);
 
-        // Format error messages for duplicate entries
-        if (!$result['success'] && isset($result['errors'])) {
-            $duplicateErrors = array_filter($result['errors'], function($error) {
-                return strpos($error, 'Duplicate entry') !== false;
-            });
-            
-            if (!empty($duplicateErrors)) {
-                // Extract student IDs from error messages
-                $duplicateIds = array_map(function($error) {
-                    preg_match("/SCC-\d+/", $error, $matches);
-                    return $matches[0] ?? '';
-                }, $duplicateErrors);
-                
-                // Create a user-friendly message
-                $result = [
-                    'success' => false,
-                    'message' => "The following students are already in the system:\n" . 
-                                implode(", ", array_filter($duplicateIds)) . 
-                                "\n\nPlease remove these students from your upload file or update them individually."
-                ];
+        // Format the response message to be more user-friendly
+        $duplicateCount = 0;
+        $birthdateErrors = 0;
+        $courseErrors = 0;
+        $nameErrors = 0;
+        $idErrors = 0;
+        $rfidErrors = 0;
+        $yearLevelErrors = 0;
+        $successCount = isset($result['successCount']) ? $result['successCount'] : 0;
+        
+        if (isset($result['errors'])) {
+            foreach ($result['errors'] as $error) {
+                if (strpos($error, 'Duplicate entry') !== false || strpos($error, 'already exists') !== false) {
+                    $duplicateCount++;
+                } else if (strpos($error, 'Invalid birthdate format') !== false) {
+                    $birthdateErrors++;
+                } else if (strpos($error, 'Invalid course code') !== false) {
+                    $courseErrors++;
+                } else if (strpos($error, 'Missing required fields (Student ID') !== false) {
+                    $idErrors++;
+                } else if (strpos($error, 'Missing RFID') !== false) {
+                    $rfidErrors++;
+                } else if (strpos($error, 'Missing year level') !== false) {
+                    $yearLevelErrors++;
+                } else if (strpos($error, 'Missing required fields') !== false || 
+                          strpos($error, 'Missing First Name') !== false || 
+                          strpos($error, 'Missing Last Name') !== false) {
+                    $nameErrors++;
+                }
             }
         }
+
+        $messages = [];
+        
+        // Add success message if any students were uploaded
+        if ($successCount > 0) {
+            $messages[] = "$successCount students added successfully";
+        }
+        
+        // Add error messages in order of importance
+        if ($duplicateCount > 0) {
+            $messages[] = "$duplicateCount students already in the system";
+        }
+        if ($idErrors > 0) {
+            $messages[] = "$idErrors students with missing student ID";
+        }
+        if ($rfidErrors > 0) {
+            $messages[] = "$rfidErrors students with missing RFID";
+        }
+        if ($nameErrors > 0) {
+            $messages[] = "$nameErrors students with missing first name or last name";
+        }
+        if ($yearLevelErrors > 0) {
+            $messages[] = "$yearLevelErrors students with missing year level";
+        }
+        if ($birthdateErrors > 0) {
+            $messages[] = "$birthdateErrors students with incorrect birthdate format";
+        }
+        if ($courseErrors > 0) {
+            $messages[] = "$courseErrors students with invalid course code";
+        }
+
+        // If no messages, show appropriate message
+        if (empty($messages)) {
+            $result['message'] = "No students were added.";
+        } else {
+            $result['message'] = implode(" and ", $messages) . ".";
+        }
+
+        unset($result['errors']); // Remove detailed errors from response
 
         echo json_encode($result);
 

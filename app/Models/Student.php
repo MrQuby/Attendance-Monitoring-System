@@ -365,6 +365,18 @@
                             continue;
                         }
 
+                        // Validate RFID
+                        if (empty($row['student_rfid'])) {
+                            $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": Missing RFID";
+                            continue;
+                        }
+
+                        // Validate year level
+                        if (empty($row['student_level'])) {
+                            $errors[] = "Row " . (($batchIndex * $batchSize) + $index + 1) . ": Missing year level";
+                            continue;
+                        }
+
                         // Format birthdate to Y-m-d format if it exists
                         if (!empty($row['student_birthdate'])) {
                             // Try to parse the date
@@ -481,6 +493,7 @@
                     return [
                         'success' => true,
                         'message' => "$successCount students successfully uploaded",
+                        'successCount' => $successCount,
                         'errors' => $errors
                     ];
                 } else {
@@ -488,6 +501,7 @@
                     return [
                         'success' => false,
                         'message' => "No students were uploaded",
+                        'successCount' => 0,
                         'errors' => $errors
                     ];
                 }
@@ -496,6 +510,7 @@
                 return [
                     'success' => false,
                     'message' => "An error occurred during upload",
+                    'successCount' => 0,
                     'errors' => [$e->getMessage()]
                 ];
             }
